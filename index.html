@@ -15,6 +15,8 @@
             --text-heading-light: #1e293b;
             --canvas-bg-light: #e2e8f0;
             --canvas-border-light: #cbd5e1;
+            --sidebar-bg-light: rgba(255, 255, 255, 0.9);
+            --sidebar-shadow-light: rgba(0, 0, 0, 0.2);
         }
 
         body.dark-mode {
@@ -24,6 +26,8 @@
             --text-heading-light: #f0f4f8;
             --canvas-bg-light: #475569;
             --canvas-border-light: #64748b;
+            --sidebar-bg-light: rgba(51, 65, 85, 0.9);
+            --sidebar-shadow-light: rgba(0, 0, 0, 0.5);
         }
 
         body {
@@ -60,7 +64,7 @@
         }
 
         h1 {
-            font-family: Impact, sans-serif; /* Fuente para los títulos */
+            font-family: Impact, sans-serif;
             color: var(--text-heading-light);
             font-size: 2rem;
             font-weight: 700;
@@ -239,9 +243,9 @@
             left: 0;
             height: 100%;
             width: 300px;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: var(--sidebar-bg-light);
             backdrop-filter: blur(10px);
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 2px 0 10px var(--sidebar-shadow-light);
             transform: translateX(-100%);
             transition: transform 0.3s ease-in-out;
             z-index: 100;
@@ -260,6 +264,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0; /* Evita que el encabezado se encoja */
         }
         
         .sidebar-logo {
@@ -274,13 +279,17 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            color: #1e293b;
+            color: var(--text-heading-light);
         }
 
+        /* CORRECCIÓN: Se añade overflow-y: auto para permitir el scroll en el menú. */
         .sidebar ul {
             list-style: none;
             padding: 0;
             margin: 0;
+            flex: 1; /* Permite que la lista crezca y ocupe el espacio disponible */
+            overflow-y: auto; /* Habilita el desplazamiento vertical */
+            padding-right: 15px; /* Evita que el contenido quede pegado a la barra de desplazamiento */
         }
 
         .sidebar li {
@@ -340,7 +349,7 @@
 
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
-            <img src="logo.png" alt="Logo de la compañía" class="sidebar-logo">
+            <img src="https://placehold.co/150x80/28539e/FFFFFF?text=Logo" alt="Logo de la compañía" class="sidebar-logo">
             <button id="closeSidebarBtn" class="close-btn">&times;</button>
         </div>
         <ul>
@@ -360,7 +369,6 @@
                 <button class="sidebar-btn" data-link-type="ime">BREVE HISTORIA DEL IME</button>
             </li>
             <li>
-                <!-- Nuevo botón agregado -->
                 <button class="sidebar-btn" data-link-type="cohesion">FUERZAS DE COHESIÓN | Simulador</button>
             </li>
         </ul>
@@ -385,6 +393,12 @@
                     <input type="range" id="bondStrengthSlider" min="0.01" max="0.5" value="0.05" step="0.01">
                 </div>
             </div>
+            <!-- Botones añadidos directamente al HTML para mejor manejo -->
+            <div class="buttons">
+                <button id="solidBtn">Sólido</button>
+                <button id="liquidBtn">Líquido</button>
+                <button id="gasBtn">Gaseoso</button>
+            </div>
             <div class="info-box">
                 <p id="infoText">
                     <b>Sólido (Hielo):</b> Las moléculas de agua están en una estructura cristalina fija, con movimiento vibratorio mínimo.
@@ -402,16 +416,12 @@
         document.addEventListener('DOMContentLoaded', (event) => {
             const canvas = document.getElementById('waterCanvas');
             const ctx = canvas.getContext('2d');
-            const solidBtn = document.getElementById('solidBtn');
-            const liquidBtn = document.getElementById('liquidBtn');
-            const gasBtn = document.getElementById('gasBtn');
             const temperatureSlider = document.getElementById('temperatureSlider');
             const bondStrengthSlider = document.getElementById('bondStrengthSlider');
             const infoText = document.getElementById('infoText');
             const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
             const closeSidebarBtn = document.getElementById('closeSidebarBtn');
             const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
             const darkModeToggleBtn = document.getElementById('darkModeToggleBtn');
             const body = document.body;
             
@@ -581,6 +591,11 @@
 
             function changeState(newState) {
                 currentState = newState;
+                // CORRECCIÓN: Ahora se seleccionan los botones correctamente después de que existen en el DOM
+                const solidBtn = document.getElementById('solidBtn');
+                const liquidBtn = document.getElementById('liquidBtn');
+                const gasBtn = document.getElementById('gasBtn');
+
                 if (solidBtn) solidBtn.classList.remove('active');
                 if (liquidBtn) liquidBtn.classList.remove('active');
                 if (gasBtn) gasBtn.classList.remove('active');
@@ -634,32 +649,10 @@
                 requestAnimationFrame(animate);
             }
 
-            // Buttons
-            const buttonsContainer = document.createElement('div');
-            buttonsContainer.classList.add('buttons');
-            
-            const solidButton = document.createElement('button');
-            solidButton.id = 'solidBtn';
-            solidButton.textContent = 'Sólido';
-            
-            const liquidButton = document.createElement('button');
-            liquidButton.id = 'liquidBtn';
-            liquidButton.textContent = 'Líquido';
-            
-            const gasButton = document.createElement('button');
-            gasButton.id = 'gasBtn';
-            gasButton.textContent = 'Gaseoso';
-            
-            buttonsContainer.appendChild(solidButton);
-            buttonsContainer.appendChild(liquidButton);
-            buttonsContainer.appendChild(gasButton);
-            
-            const controlsContainer = document.querySelector('.controls');
-            controlsContainer.parentNode.insertBefore(buttonsContainer, controlsContainer.nextSibling);
-
-            solidButton.addEventListener('click', () => changeState('solid'));
-            liquidButton.addEventListener('click', () => changeState('liquid'));
-            gasButton.addEventListener('click', () => changeState('gas'));
+            // Agrega los EventListeners a los botones de estado del agua
+            document.getElementById('solidBtn').addEventListener('click', () => changeState('solid'));
+            document.getElementById('liquidBtn').addEventListener('click', () => changeState('liquid'));
+            document.getElementById('gasBtn').addEventListener('click', () => changeState('gas'));
 
             temperatureSlider.addEventListener('input', (e) => {
                 currentTemperature = parseFloat(e.target.value);
