@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación de Capilaridad</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a1a2e;
+            font-family: 'Open Sans', sans-serif;
+            color: #e2e8f0;
+            text-align: center;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        .light-mode {
+            background-color: #f0f4f8;
+            color: #1a1a2e;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        canvas {
+            background-color: #2c2c44;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #42a5f5; /* Efecto de neón en el borde del canvas */
+            transition: background-color 0.5s, border-color 0.5s, box-shadow 0.5s;
+        }
+        
+        .light-mode canvas {
+            background-color: #ffffff;
+            border-color: #1a1a2e;
+            box-shadow: 0 0 10px rgba(66, 165, 245, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #2c2c44;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            transition: background-color 0.5s, border-color 0.5s;
+        }
+
+        .light-mode .controls {
+            background-color: #e2e8f0;
+            border-color: #1a1a2e;
+        }
+        
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        input[type="range"] {
+            width: 200px;
+        }
+        
+        /* Estilos para los sliders en modo oscuro */
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            background: #fff;
+        }
+        .slider-container input[type="range"]::-moz-range-thumb {
+            background: #fff;
+        }
+
+        /* Estilos para los sliders en modo claro */
+        .light-mode .slider-container input[type="range"]::-webkit-slider-thumb {
+            background: #1a1a2e;
+        }
+        .light-mode .slider-container input[type="range"]::-moz-range-thumb {
+            background: #1a1a2e;
+        }
+
+        button {
+            background-color: #42a5f5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2196f3;
+        }
+        
+        .light-mode button {
+            background-color: #2196f3;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #2c2c44;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            transition: background-color 0.5s, border-color 0.5s;
+        }
+
+        .light-mode .footer {
+            background-color: #e2e8f0;
+            border-color: #1a1a2e;
+        }
+
+        .footer-text {
+            font-size: 1.2rem;
+            height: 30px; /* Asegura que el contenedor tenga una altura fija */
+            margin-bottom: 10px;
+        }
+
+        .neon-button {
+            position: relative;
+            display: inline-block;
+            padding: 15px 30px;
+            color: #00ffff;
+            letter-spacing: 4px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            overflow: hidden;
+            transition: 0.2s;
+            border: 2px solid #00ffff;
+            background-color: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .neon-button:hover {
+            color: #1a1a2e;
+            background: #00ffff;
+            box-shadow: 0 0 10px #00ffff, 0 0 40px #00ffff, 0 0 80px #00ffff;
+        }
+        
+        .light-mode .neon-button {
+            color: #2196f3;
+            border-color: #2196f3;
+        }
+
+        .light-mode .neon-button:hover {
+            color: #f0f4f8;
+            background: #2196f3;
+            box-shadow: 0 0 10px #2196f3, 0 0 40px #2196f3, 0 0 80px #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simulación de Capilaridad</h1>
+    <div class="container">
+        <canvas id="myCanvas" width="500" height="600"></canvas>
+        <div class="controls">
+            <div class="slider-container">
+                <label for="tube1_slider">Tubo 1 (grande)</label>
+                <input type="range" id="tube1_slider" min="10" max="60" value="40">
+            </div>
+            <div class="slider-container">
+                <label for="tube2_slider">Tubo 2 (mediano)</label>
+                <input type="range" id="tube2_slider" min="10" max="60" value="20">
+            </div>
+            <div class="slider-container">
+                <label for="tube3_slider">Tubo 3 (pequeño)</label>
+                <input type="range" id="tube3_slider" min="10" max="60" value="10">
+            </div>
+            <button id="startButton">Comenzar Simulación</button>
+            <button id="modeToggleButton">Cambiar a Modo Claro</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-text" id="footerText"></div>
+        <a href="https://www.instagram.com/gesprache_vzla" target="_blank">
+            <button class="neon-button">
+                ¡Síguenos en Instagram!
+            </button>
+        </a>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('startButton');
+        const modeToggleButton = document.getElementById('modeToggleButton');
+        const tube1Slider = document.getElementById('tube1_slider');
+        const tube2Slider = document.getElementById('tube2_slider');
+        const tube3Slider = document = document.getElementById('tube3_slider');
+        const footerText = document.getElementById('footerText');
+
+        let isSimulating = false;
+        let isLightMode = false;
+        const baseLevel = 500;
+        
+        const darkTheme = {
+            tubeColor: '#fff',
+            liquidColorNormal: '#42a5f5',
+            liquidColorNeon: '#00ffff',
+            scaleColor: '#e2e8f0',
+            canvasFont: '30px Consolas',
+            footerFont: '1.2rem Consolas',
+            textColor: 'rgba(240, 240, 240, 0.5)',
+            textNeonColor: '#00ffff'
+        };
+
+        const lightTheme = {
+            tubeColor: '#1a1a2e',
+            liquidColorNormal: '#2196f3',
+            liquidColorNeon: '#007bff',
+            scaleColor: '#1a1a2e',
+            canvasFont: '30px Consolas',
+            footerFont: '1.2rem Consolas',
+            textColor: 'rgba(26, 26, 46, 0.5)',
+            textNeonColor: '#2196f3'
+        };
+
+        let currentTheme = darkTheme;
+
+        let mouseX = null;
+        let mouseY = null;
+
+        const tubes = [
+            { x: 100, width: 40, liquidY: baseLevel - 200, currentY: baseLevel, slider: tube1Slider },
+            { x: 200, width: 20, liquidY: baseLevel - 300, currentY: baseLevel, slider: tube2Slider },
+            { x: 300, width: 10, liquidY: baseLevel - 400, currentY: baseLevel, slider: tube3Slider }
+        ];
+
+        const words = ['Wasser', 'Water', 'Agua', '水'];
+        let wordIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let delay = 0;
+        const typingDelay = 60;
+        const deletingDelay = 60;
+        const pauseDelay = 300;
+
+        const footerPhrases = [
+            'MUCHAS AVENTURAS COMIENZAN CON UN "SÍ"',
+            'COMENTANOS TU EXPERIENCIA EN...',
+            '¿SABIAS QUE EL CUERPO HUMANO ES 60% AGUA, Y EL PLASMA REPRESENTA EL 5% DEL PESO CORPORAL TOTAL?'
+        ];
+        let footerPhraseIndex = 0;
+        let footerCharIndex = 0;
+        let isFooterDeleting = false;
+        let footerDelay = 0;
+        const footerTypingDelay = 60;
+        const footerDeletingDelay = 60;
+        const footerPauseDelay = 300;
+
+        function calculateLiquidHeight(width) {
+            const constant = 4000;
+            return baseLevel - (constant / width);
+        }
+
+        function mixColors(color1, color2, ratio) {
+            const hexToRgb = hex => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+            const rgbToHex = rgb => '#' + rgb.map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
+
+            const rgb1 = hexToRgb(color1);
+            const rgb2 = hexToRgb(color2);
+
+            const mixedRgb = rgb1.map((c, i) => c + (rgb2[i] - c) * ratio);
+            return rgbToHex(mixedRgb);
+        }
+
+        function drawTubes() {
+            ctx.fillStyle = currentTheme.liquidColorNormal;
+            ctx.fillRect(0, baseLevel, canvas.width, canvas.height - baseLevel);
+
+            tubes.forEach(tube => {
+                const tubeCenterX = tube.x + tube.width / 2;
+                const distance = Math.sqrt(Math.pow(mouseX - tubeCenterX, 2) + Math.pow(mouseY - baseLevel, 2));
+
+                const maxDistance = 200;
+                const mixRatio = 1 - Math.min(distance, maxDistance) / maxDistance;
+                
+                const liquidColor = mixColors(currentTheme.liquidColorNormal, currentTheme.liquidColorNeon, mixRatio);
+
+                ctx.fillStyle = liquidColor;
+                ctx.shadowColor = currentTheme.liquidColorNeon;
+                ctx.shadowBlur = mixRatio * 20;
+                ctx.fillRect(tube.x, tube.currentY, tube.width, baseLevel - tube.currentY);
+                
+                ctx.strokeStyle = currentTheme.tubeColor;
+                ctx.lineWidth = 4;
+                ctx.shadowColor = currentTheme.liquidColorNeon;
+                ctx.shadowBlur = mixRatio * 5;
+                ctx.beginPath();
+                ctx.moveTo(tube.x + 5, 50);
+                ctx.lineTo(tube.x + tube.width - 5, 50);
+                ctx.arcTo(tube.x + tube.width, 50, tube.x + tube.width, 55, 5);
+                ctx.lineTo(tube.x + tube.width, baseLevel);
+                ctx.lineTo(tube.x, baseLevel);
+                ctx.arcTo(tube.x, 50, tube.x + 5, 50, 5);
+                ctx.stroke();
+
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        function drawScale() {
+            ctx.fillStyle = currentTheme.scaleColor;
+            ctx.font = '12px Arial';
+            const scaleX = 420;
+            const scaleYStart = baseLevel;
+            const topOfTubes = 50;
+            const totalTubeHeightPx = scaleYStart - topOfTubes;
+            const maxCm = 50;
+            const cmToPixelRatio = totalTubeHeightPx / maxCm;
+
+            ctx.strokeStyle = currentTheme.scaleColor;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(scaleX, scaleYStart);
+            ctx.lineTo(scaleX, topOfTubes);
+            ctx.stroke();
+
+            for (let i = 0; i <= maxCm; i += 5) {
+                const y = scaleYStart - (i * cmToPixelRatio);
+                
+                ctx.beginPath();
+                ctx.moveTo(scaleX, y);
+                ctx.lineTo(scaleX - 5, y);
+                ctx.stroke();
+                
+                ctx.fillText(i.toFixed(0) + ' cm', scaleX - 35, y + 4);
+            }
+        }
+        
+        function animateCanvasTyping() {
+            const currentWord = words[wordIndex];
+            const currentText = currentWord.substring(0, charIndex);
+
+            ctx.fillStyle = currentTheme.textColor;
+            ctx.font = currentTheme.canvasFont;
+            ctx.textAlign = 'center';
+            ctx.shadowColor = currentTheme.textNeonColor;
+            ctx.shadowBlur = 5;
+            
+            const textY = baseLevel + (canvas.height - baseLevel) / 2;
+            ctx.fillText(currentText, canvas.width / 2, textY);
+            ctx.shadowBlur = 0;
+
+            if (isDeleting) {
+                if (delay > 0) {
+                    delay--;
+                } else {
+                    charIndex--;
+                    if (charIndex === 0) {
+                        isDeleting = false;
+                        wordIndex = (wordIndex + 1) % words.length;
+                    }
+                }
+            } else {
+                if (delay > 0) {
+                    delay--;
+                } else {
+                    charIndex++;
+                    if (charIndex > currentWord.length) {
+                        isDeleting = true;
+                        delay = pauseDelay;
+                    }
+                }
+            }
+        }
+
+        function animateFooterTyping() {
+            const currentPhrase = footerPhrases[footerPhraseIndex];
+            const currentText = currentPhrase.substring(0, footerCharIndex);
+            
+            footerText.textContent = currentText;
+            footerText.style.fontFamily = 'Consolas, monospace';
+            
+            if (isFooterDeleting) {
+                if (footerDelay > 0) {
+                    footerDelay--;
+                } else {
+                    footerCharIndex--;
+                    if (footerCharIndex === 0) {
+                        isFooterDeleting = false;
+                        footerPhraseIndex = (footerPhraseIndex + 1) % footerPhrases.length;
+                    }
+                }
+            } else {
+                if (footerDelay > 0) {
+                    footerDelay--;
+                } else {
+                    footerCharIndex++;
+                    if (footerCharIndex > currentPhrase.length) {
+                        isFooterDeleting = true;
+                        footerDelay = footerPauseDelay;
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTubes();
+            drawScale();
+            animateCanvasTyping();
+            animateFooterTyping();
+
+            if (isSimulating) {
+                tubes.forEach(tube => {
+                    if (tube.currentY > tube.liquidY) {
+                        tube.currentY -= 1;
+                    }
+                });
+            }
+            requestAnimationFrame(animate);
+        }
+
+        startButton.addEventListener('click', () => {
+            isSimulating = !isSimulating;
+            startButton.textContent = isSimulating ? 'Pausar Simulación' : 'Comenzar Simulación';
+        });
+        
+        modeToggleButton.addEventListener('click', () => {
+            isLightMode = !isLightMode;
+            document.body.classList.toggle('light-mode');
+            modeToggleButton.textContent = isLightMode ? 'Cambiar a Modo Oscuro' : 'Cambiar a Modo Claro';
+            currentTheme = isLightMode ? lightTheme : darkTheme;
+            drawTubes(); 
+        });
+
+        tubes.forEach(tube => {
+            tube.slider.addEventListener('input', (event) => {
+                const newWidth = parseInt(event.target.value, 10);
+                tube.width = newWidth;
+                tube.liquidY = calculateLiquidHeight(newWidth);
+                if (isSimulating) {
+                    tube.currentY = baseLevel;
+                }
+            });
+        });
+
+        canvas.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = event.clientX - rect.left;
+            mouseY = event.clientY - rect.top;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            mouseX = null;
+            mouseY = null;
+        });
+
+
+        window.onload = animate;
+    </script>
+</body>
+</html>
