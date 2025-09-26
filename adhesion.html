@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación de Tensión Superficial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            /* Colores del modo oscuro */
+            --bg-color: #1a202c;
+            --text-color: #e2e8f0;
+            --container-bg: #2d3748;
+            --control-bg: #555555;
+            --slider-bg: #4a5568;
+            --glass-fill: #2c5282;
+            --glass-stroke: #60a5fa;
+            --neon-color: rgb(100, 255, 255);
+        }
+        [data-theme="light"] {
+            /* Colores del modo claro */
+            --bg-color: #e2e8f0;
+            --text-color: #2d3748;
+            --container-bg: #f7fafc;
+            --control-bg: #e2e8f0;
+            --slider-bg: #cbd5e0;
+            --glass-fill: #b3d9ff;
+            --glass-stroke: #4299e1;
+            --neon-color: rgb(0, 191, 255);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 2rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            background-color: var(--container-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            transition: background-color 0.3s ease;
+        }
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+        }
+        .canvas-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        canvas {
+            background-color: transparent;
+            border-radius: 0.75rem;
+            width: 100%;
+            height: 400px;
+        }
+        .controls {
+            flex: 0 0 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .slider-label {
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .control-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: transform 0.1s ease, background-color 0.3s ease, color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .control-button:hover {
+            transform: translateY(-2px);
+        }
+        #startButton {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #stopButton {
+            background-color: #f44336;
+            color: white;
+        }
+        #resetButton, #darkModeToggle {
+            background-color: var(--control-bg);
+            color: var(--text-color);
+        }
+
+        /* New styles for the footer and typewriter effect */
+        .typewriter-text {
+            font-family: 'Courier New', Courier, monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 0.15em solid orange;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+            display: inline-block;
+        }
+        .neon-button {
+            background-color: transparent;
+            border: 2px solid var(--neon-color);
+            box-shadow: 0 0 5px var(--neon-color), 0 0 10px var(--neon-color), 0 0 15px var(--neon-color), 0 0 20px var(--neon-color);
+            text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-color), 0 0 15px var(--neon-color);
+            transition: all 0.3s ease;
+        }
+        .neon-button:hover {
+            background-color: var(--neon-color);
+            color: #1a202c;
+            box-shadow: 0 0 5px var(--neon-color), 0 0 10px var(--neon-color), 0 0 15px var(--neon-color), 0 0 20px var(--neon-color), 0 0 25px var(--neon-color), 0 0 30px var(--neon-color), 0 0 35px var(--neon-color), 0 0 40px var(--neon-color);
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: var(--slider-bg);
+        }
+        input[type="range"]::-moz-range-track {
+            background: var(--slider-bg);
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="container mx-auto p-8 rounded-xl shadow-lg">
+        <div class="canvas-wrapper">
+            <!-- Canvas for the simulation -->
+            <canvas id="waterCanvas"></canvas>
+        </div>
+
+        <div class="controls">
+            <h1 class="text-3xl font-bold text-center mb-2 md:mb-0">Simulación de Tensión Superficial</h1>
+            
+            <div class="slider-container">
+                <!-- Slider for object mass -->
+                <div>
+                    <div class="slider-label">
+                        <span>Masa del objeto (gramos)</span>
+                        <span id="massValue">10 g</span>
+                    </div>
+                    <input type="range" id="massSlider" min="0" max="20" value="10" step="0.1" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <!-- Slider for surface tension force -->
+                <div>
+                    <div class="slider-label">
+                        <span>Fuerza de Tensión Superficial</span>
+                        <span id="surfaceTensionValue">100%</span>
+                    </div>
+                    <input type="range" id="surfaceTensionSlider" min="0" max="100" value="100" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Buttons for control -->
+            <div class="button-group">
+                <button id="startButton" class="control-button">Iniciar</button>
+                <button id="stopButton" class="control-button">Parar</button>
+                <button id="resetButton" class="control-button">Reiniciar</button>
+                <button id="darkModeToggle" class="control-button">Modo Claro</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-8 text-center flex flex-col items-center">
+        <div id="typewriter-text" class="text-lg font-mono mb-4"></div>
+        <a href="https://www.instagram.com/gesprache_vzla" target="_blank" class="neon-button px-6 py-3 rounded-full font-bold tracking-wider">
+            Síguenos en Instagram
+        </a>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('waterCanvas');
+            const ctx = canvas.getContext('2d');
+            const massSlider = document.getElementById('massSlider');
+            const massValueSpan = document.getElementById('massValue');
+            const surfaceTensionSlider = document.getElementById('surfaceTensionSlider');
+            const surfaceTensionValueSpan = document.getElementById('surfaceTensionValue');
+            const startButton = document.getElementById('startButton');
+            const stopButton = document.getElementById('stopButton');
+            const resetButton = document.getElementById('resetButton');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const typewriterText = document.getElementById('typewriter-text');
+            const phrases = [
+                "¿HAS INTENTADO RESPIRAR BAJO EL AGUA?",
+                "¿QUIENES PRODUCEN EL SURFACTANTE?",
+                "MUCHAS AVENTURAS COMIENZAN CON UN \"SI\"."
+            ];
+
+            let animationFrameId = null;
+            let objectMass = parseFloat(massSlider.value);
+            let surfaceTension = parseFloat(surfaceTensionSlider.value);
+            let isMouseOverCanvas = false;
+            let waterSurfaceY = 150;
+            let glassBottomY = 0;
+            let objectPosition = { x: 0, y: waterSurfaceY };
+            const gridSize = 20;
+            const vectorLength = 15;
+            const objectSize = 20;
+            const sinkingSpeed = 0.5;
+            const ascendingSpeed = 0.5;
+            let phraseIndex = 0;
+            let charIndex = 0;
+            let isTyping = true;
+            let lastUpdate = 0;
+            let theme = 'dark';
+
+            // Function to get the current computed value of a CSS variable
+            const getCssVariable = (name) => getComputedStyle(document.documentElement).getPropertyValue(name);
+
+            // Mouse event listeners for neon effect
+            canvas.addEventListener('mouseenter', () => {
+                isMouseOverCanvas = true;
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                isMouseOverCanvas = false;
+            });
+
+            // Typewriter animation
+            function updateTypewriter() {
+                const currentPhrase = phrases[phraseIndex];
+                if (isTyping) {
+                    if (charIndex < currentPhrase.length) {
+                        typewriterText.textContent += currentPhrase.charAt(charIndex);
+                        charIndex++;
+                    } else {
+                        isTyping = false;
+                        lastUpdate = Date.now();
+                    }
+                } else {
+                    if (Date.now() - lastUpdate > 2000) {
+                        if (charIndex > 0) {
+                            typewriterText.textContent = currentPhrase.substring(0, charIndex - 1);
+                            charIndex--;
+                        } else {
+                            isTyping = true;
+                            phraseIndex = (phraseIndex + 1) % phrases.length;
+                            typewriterText.textContent = '';
+                        }
+                    }
+                }
+            }
+            
+            // Set up typewriter animation to start on load
+            setInterval(updateTypewriter, 70);
+
+            // Resize the canvas to be responsive
+            function resizeCanvas() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                objectPosition.x = canvas.width / 2;
+                const glassHeight = canvas.height * 0.7;
+                const glassY = (canvas.height - glassHeight) / 2;
+                waterSurfaceY = glassY + 20;
+                glassBottomY = glassY + glassHeight;
+                objectPosition.y = waterSurfaceY;
+                draw();
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            
+            function drawGlass() {
+                const glassWidth = canvas.width * 0.8;
+                const glassHeight = canvas.height * 0.7;
+                const glassX = (canvas.width - glassWidth) / 2;
+                const glassY = (canvas.height - glassHeight) / 2;
+                
+                ctx.fillStyle = getCssVariable('--glass-fill');
+                if (isMouseOverCanvas) {
+                    ctx.shadowColor = getCssVariable('--neon-color');
+                    ctx.shadowBlur = 10;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fillRect(glassX, glassY + 20, glassWidth, glassHeight - 20);
+                
+                ctx.shadowBlur = 0;
+
+                ctx.strokeStyle = getCssVariable('--glass-stroke');
+                ctx.lineWidth = 4;
+                if (isMouseOverCanvas) {
+                    ctx.shadowColor = getCssVariable('--neon-color');
+                    ctx.shadowBlur = 8;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                ctx.beginPath();
+                ctx.moveTo(glassX, glassY);
+                ctx.lineTo(glassX, glassY + glassHeight);
+                ctx.lineTo(glassX + glassWidth, glassY + glassHeight);
+                ctx.lineTo(glassX + glassWidth, glassY);
+                ctx.stroke();
+
+                waterSurfaceY = glassY + 20;
+                glassBottomY = glassY + glassHeight;
+            }
+
+            function drawVector(x, y, dx, dy, color) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1.5;
+                if (isMouseOverCanvas) {
+                    ctx.shadowColor = getCssVariable('--neon-color');
+                    ctx.shadowBlur = 3;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + dx, y + dy);
+                ctx.stroke();
+                
+                const angle = Math.atan2(dy, dx);
+                ctx.beginPath();
+                ctx.moveTo(x + dx, y + dy);
+                ctx.lineTo(x + dx - vectorLength * 0.3 * Math.cos(angle - Math.PI / 6), y + dy - vectorLength * 0.3 * Math.sin(angle - Math.PI / 6));
+                ctx.moveTo(x + dx, y + dy);
+                ctx.lineTo(x + dx - vectorLength * 0.3 * Math.cos(angle + Math.PI / 6), y + dy - vectorLength * 0.3 * Math.sin(angle + Math.PI / 6));
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+
+            function drawObject(isSinking) {
+                ctx.fillStyle = isSinking ? '#ef4444' : getCssVariable('--glass-stroke');
+                ctx.beginPath();
+                ctx.arc(objectPosition.x, objectPosition.y, objectSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = getCssVariable('--bg-color');
+                ctx.textAlign = 'center';
+                ctx.font = '14px Inter';
+                ctx.fillText(isSinking ? '¡Se hunde!' : 'Flota', objectPosition.x, objectPosition.y + 5);
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawGlass();
+
+                const glassWidth = canvas.width * 0.8;
+                const glassX = (canvas.width - glassWidth) / 2;
+                
+                for (let x = glassX + gridSize; x < glassX + glassWidth; x += gridSize) {
+                    for (let y = waterSurfaceY; y < glassBottomY; y += gridSize) {
+                        const dist = Math.hypot(x - objectPosition.x, y - objectPosition.y);
+                        
+                        if (dist < 100) {
+                            const angle = Math.atan2(objectPosition.y - y, objectPosition.x - x);
+                            const forceFactor = Math.min(1, (100 - dist) / 100);
+                            const effectiveForce = forceFactor * (surfaceTension / 100);
+                            const dx = Math.cos(angle) * vectorLength * effectiveForce;
+                            const dy = Math.sin(angle) * vectorLength * effectiveForce;
+                            drawVector(x, y, dx, dy, getCssVariable('--text-color'));
+                        } else {
+                            drawVector(x, y, 0, vectorLength, getCssVariable('--text-color'));
+                        }
+                    }
+                }
+                
+                const gravitationalForce = objectMass * 9.81;
+                const surfaceTensionForce = (surfaceTension / 100) * 100;
+                
+                const isSinking = gravitationalForce > surfaceTensionForce;
+
+                if (isSinking && objectPosition.y < glassBottomY - objectSize) {
+                    objectPosition.y += sinkingSpeed;
+                } else if (!isSinking && objectPosition.y > waterSurfaceY) {
+                    objectPosition.y -= ascendingSpeed;
+                    if (objectPosition.y < waterSurfaceY) {
+                        objectPosition.y = waterSurfaceY;
+                    }
+                }
+                
+                drawObject(isSinking);
+
+                animationFrameId = requestAnimationFrame(draw);
+            }
+
+            function startSimulation() {
+                if (!animationFrameId) {
+                    animationFrameId = requestAnimationFrame(draw);
+                }
+            }
+
+            function stopSimulation() {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+            }
+
+            function resetSimulation() {
+                stopSimulation();
+                objectMass = 10;
+                surfaceTension = 100;
+                objectPosition = { x: canvas.width / 2, y: waterSurfaceY };
+                massSlider.value = 10;
+                massValueSpan.textContent = '10 g';
+                surfaceTensionSlider.value = 100;
+                surfaceTensionValueSpan.textContent = '100%';
+                draw();
+            }
+
+            massSlider.oninput = () => {
+                objectMass = parseFloat(massSlider.value);
+                massValueSpan.textContent = `${objectMass} g`;
+            };
+
+            surfaceTensionSlider.oninput = () => {
+                surfaceTension = parseFloat(surfaceTensionSlider.value);
+                surfaceTensionValueSpan.textContent = `${surfaceTension}%`;
+            };
+
+            startButton.addEventListener('click', startSimulation);
+            stopButton.addEventListener('click', stopSimulation);
+            resetButton.addEventListener('click', resetSimulation);
+
+            darkModeToggle.addEventListener('click', () => {
+                const body = document.body;
+                if (body.getAttribute('data-theme') === 'dark') {
+                    body.setAttribute('data-theme', 'light');
+                    darkModeToggle.textContent = 'Modo Oscuro';
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    body.setAttribute('data-theme', 'dark');
+                    darkModeToggle.textContent = 'Modo Claro';
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+
+            // Set initial theme based on local storage
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+                if (savedTheme === 'light') {
+                    darkModeToggle.textContent = 'Modo Oscuro';
+                } else {
+                    darkModeToggle.textContent = 'Modo Claro';
+                }
+            }
+
+            window.onload = function() {
+                resizeCanvas();
+            };
+        });
+    </script>
+</body>
+</html>
