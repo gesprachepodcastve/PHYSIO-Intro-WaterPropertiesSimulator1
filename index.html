@@ -275,7 +275,7 @@
             align-items: center;
             flex-shrink: 0;
         }
-        
+
         .sidebar-logo {
             max-width: 150px;
             height: auto;
@@ -322,7 +322,7 @@
             padding: 0.5rem 1rem;
             font-size: 1rem;
         }
-        
+
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
@@ -382,6 +382,9 @@
             <li>
                 <button class="sidebar-btn" data-link-type="adhesion">FUERZAS DE ADHESIÓN | Simulador</button>
             </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="watermol">WaterMol | Simulator</button>
+            </li>
         </ul>
     </div>
 
@@ -436,7 +439,7 @@
             const darkModeToggleBtn = document.getElementById('darkModeToggleBtn');
             const body = document.body;
             const mainContent = document.getElementById('mainContent');
-            
+
             let particles = [];
             const particleCount = 100;
             const particleRadius = 4;
@@ -534,6 +537,8 @@
                         url = 'capilaridad.html'; // El nuevo enlace para el simulador de cohesión
                     } else if (linkType === 'adhesion') {
                         url = 'adhesion.html'; // El nuevo enlace para el simulador de adhesión
+                    } else if (linkType === 'watermol') {
+                        url = 'watermol.html'; // Enlace para el simulador WaterMol
                     }
 
                     if (url) {
@@ -541,7 +546,7 @@
                     }
                 }
             });
-            
+
             function resizeCanvas() {
                 canvas.width = canvas.offsetWidth;
                 canvas.height = canvas.offsetHeight;
