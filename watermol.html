@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molécula de Agua y Dipolos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .info-box {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10;
+            text-align: center;
+            align-items: center;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            color: #333;
+        }
+        p {
+            margin: 0;
+            color: #666;
+        }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        #flotabilidadButton { background-color: #e74c3c; }
+        #flotabilidadButton:hover { background-color: #c0392b; }
+        #singleButton { background-color: #95a5a6; }
+        #singleButton:hover { background-color: #7f8c8d; }
+        #puenteHidrogenoButton { background-color: #3498db; }
+        #puenteHidrogenoButton:hover { background-color: #2980b9; }
+        #darkModeButton { background-color: #2c3e50; }
+        #darkModeButton:hover { background-color: #1a2430; }
+
+        .change-indicator { font-size: 1.2rem; margin-left: 5px; }
+        #interactionControls {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        #interactionMessage {
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            font-style: italic;
+        }
+        select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .collapsible-header {
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .collapsible-header:hover {
+            color: #000;
+        }
+        .collapsible-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            max-height: 500px;
+        }
+        .collapsible-content.collapsed {
+            max-height: 0;
+            padding: 0;
+            margin: 0;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        /* Estilos para el modo oscuro */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .info-box {
+            background-color: rgba(30, 30, 30, 0.8);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode h1,
+        body.dark-mode p,
+        body.dark-mode .collapsible-header {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode #darkModeButton {
+            background-color: #ecf0f1;
+            color: #1a2430;
+        }
+        body.dark-mode #darkModeButton:hover {
+            background-color: #bdc3c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-box">
+        <div class="collapsible-header" id="infoHeader">
+            <span>Leyenda y Controles</span>
+            <span>▲</span>
+        </div>
+        <div class="collapsible-content" id="infoContent">
+            <h1>Moléculas de Agua ($$H_2O$$)</h1>
+            <p>Átomo de Oxígeno: Rojo</p>
+            <p>Átomo de Nitrógeno: Azul</p>
+            <p>Átomo de Carbono: Gris</p>
+            <p>Átomos de Hidrógeno: Blanco</p>
+            <p>Puentes de Hidrógeno: Cian</p>
+            <p>Dipolo Negativo: Nube Azul</p>
+            <p>Dipolo Positivo: Nubes Rojas</p>
+            <p>Haz clic y arrastra para rotar.</p>
+            <hr>
+            <div id="standardControls">
+                <div class="control-group">
+                    <p>Ángulo de enlace ($$H-O-H$$): <span id="angleValue">104.5</span>°</p>
+                    <input type="range" id="angleSlider" min="104.5" max="109" value="104.5" step="0.1">
+                </div>
+                <div class="control-row">
+                    <input type="checkbox" id="showDipoles">
+                    <label for="showDipoles">Mostrar Dipolos</label>
+                </div>
+                <hr>
+                <p id="densityLabel" style="display: none;">Densidad (aprox.): <span id="densityValue">1000</span> $$kg/m^3$$</p>
+                <p id="massLabel" style="display: none;">Masa (aprox.): <span id="massValue">18.02</span> g <span id="massArrow" class="change-indicator"></span></p>
+                <p id="volumeLabel" style="display: none;">Volumen (aprox.): <span id="volumeValue">1</span> $$m^3$$ <span id="volumeArrow" class="change-indicator"></span></p>
+            </div>
+            <div id="interactionControls">
+                <p>Selecciona una segunda molécula:</p>
+                <select id="moleculeSelect">
+                    <option value="H2O" selected>Agua ($$H_2O$$)</option>
+                    <option value="NH3">Amoníaco ($$NH_3$$)</option>
+                    <option value="CH4">Metano ($$CH_4$$)</option>
+                </select>
+                <div id="interactionMessage"></div>
+            </div>
+            <div class="button-container">
+                <button id="singleButton">Una Sola Molécula</button>
+                <button id="flotabilidadButton">Flotabilidad del Hielo</button>
+                <button id="puenteHidrogenoButton">Puente de Hidrógeno</button>
+                <button id="darkModeButton">Modo Oscuro</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Configuración de la escena y variables globales
+        let scene, camera, renderer, mainGroup;
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let simulationMode = 'single'; // 'single', 'flotabilidad', 'puenteHidrogeno'
+        const container = document.body;
+        const angleSlider = document.getElementById('angleSlider');
+        const angleValueSpan = document.getElementById('angleValue');
+        const densityLabel = document.getElementById('densityLabel');
+        const densityValueSpan = document.getElementById('densityValue');
+        const massLabel = document.getElementById('massLabel');
+        const massValueSpan = document.getElementById('massValue');
+        const massArrowSpan = document.getElementById('massArrow');
+        const volumeLabel = document.getElementById('volumeLabel');
+        const volumeValueSpan = document.getElementById('volumeValue');
+        const volumeArrowSpan = document.getElementById('volumeArrow');
+        const flotabilidadButton = document.getElementById('flotabilidadButton');
+        const singleButton = document.getElementById('singleButton');
+        const puenteHidrogenoButton = document.getElementById('puenteHidrogenoButton');
+        const standardControls = document.getElementById('standardControls');
+        const interactionControls = document.getElementById('interactionControls');
+        const moleculeSelect = document.getElementById('moleculeSelect');
+        const interactionMessage = document.getElementById('interactionMessage');
+        const infoHeader = document.getElementById('infoHeader');
+        const infoContent = document.getElementById('infoContent');
+        const infoBox = document.querySelector('.info-box');
+        const showDipolesCheckbox = document.getElementById('showDipoles');
+        const darkModeButton = document.getElementById('darkModeButton');
+        const body = document.body;
+
+        const molecules = [];
+        let dipoleCloudGroup;
+        let bondGroup;
+
+        let previousVolume = 1;
+        let isInfoDragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        // Tamaños y colores de los átomos y enlaces
+        const OXYGEN_RADIUS = 0.35;
+        const HYDROGEN_RADIUS = 0.21;
+        const NITROGEN_RADIUS = 0.32;
+        const CARBON_RADIUS = 0.30;
+        const BOND_RADIUS = 0.08;
+        const HYDROGEN_BOND_RADIUS = 0.05;
+
+        const OXYGEN_COLOR = 0xff0000;
+        const HYDROGEN_COLOR = 0xffffff;
+        const NITROGEN_COLOR = 0x0000ff;
+        const CARBON_COLOR = 0x555555;
+        const BOND_COLOR = 0x808080;
+        const HYDROGEN_BOND_COLOR = 0x00ffff;
+
+        // Colores y tamaños de las nubes de dipolos
+        const NEGATIVE_DIPOLE_COLOR = 0x3498db; // Azul
+        const POSITIVE_DIPOLE_COLOR = 0xe74c3c; // Rojo
+        const DIPOLE_OPACITY = 0.4;
+        const OXYGEN_DIPOLE_RADIUS = OXYGEN_RADIUS * 1.5;
+        const HYDROGEN_DIPOLE_RADIUS = HYDROGEN_RADIUS * 1.8;
+
+        function init() {
+            // Crea la escena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f0f0);
+
+            // Crea la cámara
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            // Crea el renderizador
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            // Crea el grupo principal para la rotación
+            mainGroup = new THREE.Group();
+            scene.add(mainGroup);
+            
+            // Inicializa los grupos de dipolos y enlaces
+            dipoleCloudGroup = new THREE.Group();
+            mainGroup.add(dipoleCloudGroup);
+            bondGroup = new THREE.Group();
+            mainGroup.add(bondGroup);
+
+
+            // Añade luces
+            const ambientLight = new THREE.AmbientLight(0x404040); 
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+
+            // Crea la escena inicial
+            updateScene();
+
+            // Eventos del ratón para rotación
+            renderer.domElement.addEventListener('mousedown', onMouseDown);
+            renderer.domElement.addEventListener('mouseup', onMouseUp);
+            renderer.domElement.addEventListener('mousemove', onMouseMove);
+            
+            // Eventos de los botones y el deslizador
+            angleSlider.addEventListener('input', updateScene);
+            showDipolesCheckbox.addEventListener('change', updateDipoleVisibility);
+            moleculeSelect.addEventListener('change', updateScene);
+            flotabilidadButton.addEventListener('click', () => {
+                simulationMode = 'flotabilidad';
+                updateScene();
+            });
+            singleButton.addEventListener('click', () => {
+                simulationMode = 'single';
+                updateScene();
+            });
+            puenteHidrogenoButton.addEventListener('click', () => {
+                simulationMode = 'puenteHidrogeno';
+                updateScene();
+            });
+
+            // Evento para el botón de modo oscuro
+            darkModeButton.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                const isDarkMode = body.classList.contains('dark-mode');
+                renderer.setClearColor(isDarkMode ? 0x121212 : 0xf0f0f0);
+                darkModeButton.textContent = isDarkMode ? 'Modo Claro' : 'Modo Oscuro';
+                render();
+            });
+
+            // Eventos para el menú desplegable y arrastrable
+            infoHeader.addEventListener('click', toggleLegend);
+            infoHeader.addEventListener('mousedown', startInfoDrag);
+            document.addEventListener('mousemove', dragInfoBox);
+            document.addEventListener('mouseup', endInfoDrag);
+
+            window.addEventListener('resize', onWindowResize, false);
+        }
+        
+        function updateDipoleVisibility() {
+            dipoleCloudGroup.visible = showDipolesCheckbox.checked && simulationMode === 'single';
+            render();
+        }
+
+        function toggleLegend() {
+            const isCollapsed = infoContent.classList.toggle('collapsed');
+            infoHeader.children[1].textContent = isCollapsed ? '▼' : '▲';
+        }
+
+        // Funciones para el arrastre del menú
+        function startInfoDrag(event) {
+            isInfoDragging = true;
+            event.stopPropagation();
+            event.preventDefault(); 
+            const rect = infoBox.getBoundingClientRect();
+            offsetX = event.clientX - rect.left;
+            offsetY = event.clientY - rect.top;
+            infoBox.style.cursor = 'grabbing';
+        }
+
+        function dragInfoBox(event) {
+            if (!isInfoDragging) return;
+            event.preventDefault();
+            const newX = event.clientX - offsetX;
+            const newY = event.clientY - offsetY;
+            infoBox.style.left = `${newX}px`;
+            infoBox.style.top = `${newY}px`;
+            infoBox.style.transform = 'translate(0, 0)';
+        }
+
+        function endInfoDrag() {
+            isInfoDragging = false;
+            infoBox.style.cursor = 'move';
+        }
+
+        function updateScene() {
+            // Limpia la escena, eliminando solo las moléculas
+            const moleculesToRemove = mainGroup.children.filter(child => child.userData.isMolecule);
+            moleculesToRemove.forEach(mol => mainGroup.remove(mol));
+            molecules.length = 0; // Limpia el array de moléculas
+            bondGroup.clear();
+            dipoleCloudGroup.clear();
+
+            // Oculta/muestra controles según el modo de simulación
+            const isStandardMode = (simulationMode === 'single' || simulationMode === 'flotabilidad');
+            standardControls.style.display = isStandardMode ? 'flex' : 'none';
+            interactionControls.style.display = (simulationMode === 'puenteHidrogeno') ? 'flex' : 'none';
+            showDipolesCheckbox.parentNode.style.display = (simulationMode === 'single') ? 'flex' : 'none';
+
+            // Oculta las etiquetas de densidad, masa y volumen por defecto
+            densityLabel.style.display = 'none';
+            massLabel.style.display = 'none';
+            volumeLabel.style.display = 'none';
+
+            if (simulationMode === 'puenteHidrogeno') {
+                camera.position.z = 8;
+                const waterMolecule = createMolecule('H2O');
+                waterMolecule.position.x = -1.5;
+                mainGroup.add(waterMolecule);
+                molecules.push(waterMolecule);
+
+                const secondMolecule = createMolecule(moleculeSelect.value);
+                secondMolecule.position.x = 1.5;
+                mainGroup.add(secondMolecule);
+                molecules.push(secondMolecule);
+                
+                dipoleCloudGroup.visible = false;
+                drawHydrogenBonds();
+
+            } else {
+                const newAngle = parseFloat(angleSlider.value);
+                angleValueSpan.textContent = newAngle.toFixed(1);
+
+                if (simulationMode === 'flotabilidad') {
+                    simulateFlotabilidad(newAngle);
+                    updateDensityDisplay(newAngle);
+                    updateMassAndVolume(newAngle);
+                    densityLabel.style.display = 'block';
+                    massLabel.style.display = 'block';
+                    volumeLabel.style.display = 'block';
+                    camera.position.z = 8;
+                    dipoleCloudGroup.visible = false;
+                } else {
+                    // Modo de una sola molécula
+                    const molecule = createMolecule('H2O', newAngle);
+                    mainGroup.add(molecule);
+                    createDipoleClouds(molecule);
+                    updateDipoleVisibility();
+                    camera.position.z = 5;
+                }
+            }
+            render();
+        }
+
+        function updateDensityDisplay(angle) {
+            // Simula una disminución de densidad de 1000 kg/m^3 a 917 kg/m^3
+            const minAngle = 104.5;
+            const maxAngle = 109;
+            const minDensity = 917;
+            const maxDensity = 1000;
+
+            const density = maxDensity - ((angle - minAngle) / (maxAngle - minAngle)) * (maxDensity - minDensity);
+            densityValueSpan.textContent = Math.round(density);
+        }
+
+        function updateMassAndVolume(angle) {
+            const minAngle = 104.5;
+            const maxAngle = 109;
+
+            // La masa es invariante en la realidad. La mantenemos fija.
+            massValueSpan.textContent = "18.02";
+            massArrowSpan.textContent = "=";
+
+            // Simulación de aumento de volumen
+            const minVolume = 1;
+            const maxVolume = 1.09;
+            const newVolume = minVolume + ((angle - minAngle) / (maxAngle - minAngle)) * (maxVolume - minVolume);
+            volumeValueSpan.textContent = newVolume.toFixed(2);
+            volumeArrowSpan.textContent = newVolume > previousVolume ? '↑' : (newVolume < previousVolume ? '↓' : '=');
+
+            previousVolume = newVolume;
+        }
+
+        function createMolecule(type, angleInDegrees = 104.5) {
+            const molecule = new THREE.Group();
+            molecule.userData.isMolecule = true; // Etiqueta para que la función de limpieza la reconozca
+            const bondMaterial = new THREE.MeshLambertMaterial({ color: BOND_COLOR });
+            
+            if (type === 'H2O') {
+                const oxygenGeometry = new THREE.SphereGeometry(OXYGEN_RADIUS, 32, 32);
+                const oxygenMaterial = new THREE.MeshLambertMaterial({ color: OXYGEN_COLOR });
+                const oxygen = new THREE.Mesh(oxygenGeometry, oxygenMaterial);
+                oxygen.userData.isOxygen = true;
+                molecule.add(oxygen);
+
+                const hydrogenGeometry = new THREE.SphereGeometry(HYDROGEN_RADIUS, 32, 32);
+                const hydrogenMaterial = new THREE.MeshLambertMaterial({ color: HYDROGEN_COLOR });
+                const hydrogen1 = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+                const hydrogen2 = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+                
+                const angleRad = angleInDegrees * Math.PI / 180;
+                const distance = 1.2 * (OXYGEN_RADIUS + HYDROGEN_RADIUS);
+                hydrogen1.position.x = distance * Math.cos(angleRad / 2);
+                hydrogen1.position.y = distance * Math.sin(angleRad / 2);
+                hydrogen2.position.x = distance * Math.cos(-angleRad / 2);
+                hydrogen2.position.y = distance * Math.sin(-angleRad / 2);
+                hydrogen1.userData.isHydrogen = true;
+                hydrogen2.userData.isHydrogen = true;
+                hydrogen1.userData.isDonor = true;
+                hydrogen2.userData.isDonor = true;
+
+                molecule.add(hydrogen1, hydrogen2);
+                const bond1 = createBond(oxygen.position, hydrogen1.position, bondMaterial, BOND_RADIUS);
+                const bond2 = createBond(oxygen.position, hydrogen2.position, bondMaterial, BOND_RADIUS);
+                molecule.add(bond1, bond2);
+
+            } else if (type === 'NH3') {
+                const nitrogenGeometry = new THREE.SphereGeometry(NITROGEN_RADIUS, 32, 32);
+                const nitrogenMaterial = new THREE.MeshLambertMaterial({ color: NITROGEN_COLOR });
+                const nitrogen = new THREE.Mesh(nitrogenGeometry, nitrogenMaterial);
+                nitrogen.userData.isNitrogen = true;
+                molecule.add(nitrogen);
+
+                const hydrogenGeometry = new THREE.SphereGeometry(HYDROGEN_RADIUS, 32, 32);
+                const hydrogenMaterial = new THREE.MeshLambertMaterial({ color: HYDROGEN_COLOR });
+                const angle = 107 * Math.PI / 180;
+                const distance = 1.2 * (NITROGEN_RADIUS + HYDROGEN_RADIUS);
+                
+                const hydrogen1 = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+                const hydrogen2 = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+                const hydrogen3 = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+
+                hydrogen1.position.set(distance * Math.sin(angle/2), distance * Math.cos(angle/2), 0);
+                hydrogen2.position.set(-distance * Math.sin(angle/2), distance * Math.cos(angle/2), 0);
+                hydrogen3.position.set(0, -distance * Math.cos(angle/2), distance * Math.sin(angle/2));
+                
+                hydrogen1.userData.isHydrogen = true;
+                hydrogen2.userData.isHydrogen = true;
+                hydrogen3.userData.isHydrogen = true;
+                hydrogen1.userData.isDonor = true;
+                hydrogen2.userData.isDonor = true;
+                hydrogen3.userData.isDonor = true;
+                
+                molecule.add(hydrogen1, hydrogen2, hydrogen3);
+                
+                const bond1 = createBond(nitrogen.position, hydrogen1.position, bondMaterial, BOND_RADIUS);
+                const bond2 = createBond(nitrogen.position, hydrogen2.position, bondMaterial, BOND_RADIUS);
+                const bond3 = createBond(nitrogen.position, hydrogen3.position, bondMaterial, BOND_RADIUS);
+                molecule.add(bond1, bond2, bond3);
+            } else if (type === 'CH4') {
+                const carbonGeometry = new THREE.SphereGeometry(CARBON_RADIUS, 32, 32);
+                const carbonMaterial = new THREE.MeshLambertMaterial({ color: CARBON_COLOR });
+                const carbon = new THREE.Mesh(carbonGeometry, carbonMaterial);
+                carbon.userData.isCarbon = true;
+                molecule.add(carbon);
+
+                const hydrogenGeometry = new THREE.SphereGeometry(HYDROGEN_RADIUS, 32, 32);
+                const hydrogenMaterial = new THREE.MeshLambertMaterial({ color: HYDROGEN_COLOR });
+
+                const distance = 1.5 * (CARBON_RADIUS + HYDROGEN_RADIUS);
+                const h1 = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+                h1.position.set(distance, distance, distance);
+                const h2 = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+                h2.position.set(-distance, -distance, distance);
+                const h3 = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+                h3.position.set(distance, -distance, -distance);
+                const h4 = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+                h4.position.set(-distance, distance, -distance);
+                
+                molecule.add(h1, h2, h3, h4);
+
+                const bond1 = createBond(carbon.position, h1.position, bondMaterial, BOND_RADIUS);
+                const bond2 = createBond(carbon.position, h2.position, bondMaterial, BOND_RADIUS);
+                const bond3 = createBond(carbon.position, h3.position, bondMaterial, BOND_RADIUS);
+                const bond4 = createBond(carbon.position, h4.position, bondMaterial, BOND_RADIUS);
+                molecule.add(bond1, bond2, bond3, bond4);
+            }
+            return molecule;
+        }
+        
+        // Simulación de Flotabilidad del Hielo (estructura estática)
+        function simulateFlotabilidad(angleInDegrees) {
+            const count = 15;
+            const distance = 3;
+            const moleculesInScene = [];
+
+            // Crea las moléculas
+            let currentX = 0, currentY = 0, currentZ = 0;
+            for (let i = 0; i < 3; i++) {
+                currentX = 0;
+                for (let j = 0; j < 3; j++) {
+                    currentY = 0;
+                    for (let k = 0; k < 2; k++) {
+                        const x = currentX + (k % 2) * (distance / 2);
+                        const y = currentY;
+                        const z = currentZ;
+                        const molecule = createMolecule('H2O', angleInDegrees);
+                        molecule.position.set(x - distance, y - distance, z - distance);
+                        molecules.push(molecule);
+                        moleculesInScene.push(molecule);
+                        mainGroup.add(molecule);
+                        currentY += distance * Math.sqrt(3) / 2;
+                    }
+                    currentX += distance;
+                }
+                currentZ += distance * Math.sqrt(6) / 3;
+            }
+
+            // Dibuja los puentes de hidrógeno para la estructura de hielo
+            drawIceBonds(moleculesInScene);
+        }
+
+        // Nueva función para dibujar los puentes de hidrógeno en el modo de flotabilidad
+        function drawIceBonds(moleculesInScene) {
+            const bondMaterial = new THREE.MeshBasicMaterial({ color: HYDROGEN_BOND_COLOR, transparent: true, opacity: 0.5 });
+            const bondDistance = 1.2 * (OXYGEN_RADIUS + HYDROGEN_RADIUS) + 0.5;
+
+            for (let i = 0; i < moleculesInScene.length; i++) {
+                const molA = moleculesInScene[i];
+                const oxygenA = molA.children.find(c => c.userData.isOxygen);
+                const hydrogensA = molA.children.filter(c => c.userData.isHydrogen);
+
+                for (let j = i + 1; j < moleculesInScene.length; j++) {
+                    const molB = moleculesInScene[j];
+                    const oxygenB = molB.children.find(c => c.userData.isOxygen);
+                    const hydrogensB = molB.children.filter(c => c.userData.isHydrogen);
+
+                    if (!oxygenA || !oxygenB) continue;
+
+                    const posA = new THREE.Vector3();
+                    oxygenA.getWorldPosition(posA);
+                    const posB = new THREE.Vector3();
+                    oxygenB.getWorldPosition(posB);
+
+                    if (posA.distanceTo(posB) < bondDistance) {
+                        hydrogensA.forEach(hA => {
+                            const hAPos = new THREE.Vector3();
+                            hA.getWorldPosition(hAPos);
+                            if (hAPos.distanceTo(posB) < bondDistance) {
+                                const bond = createBond(hAPos, posB, bondMaterial, HYDROGEN_BOND_RADIUS);
+                                bondGroup.add(bond);
+                            }
+                        });
+
+                        hydrogensB.forEach(hB => {
+                            const hBPos = new THREE.Vector3();
+                            hB.getWorldPosition(hBPos);
+                            if (hBPos.distanceTo(posA) < bondDistance) {
+                                const bond = createBond(hBPos, posA, bondMaterial, HYDROGEN_BOND_RADIUS);
+                                bondGroup.add(bond);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+
+        function createDipoleClouds(molecule) {
+            // Elimina las nubes de dipolos anteriores
+            while(dipoleCloudGroup.children.length > 0) {
+                dipoleCloudGroup.remove(dipoleCloudGroup.children[0]);
+            }
+
+            const oxygen = molecule.children.find(child => child.userData.isOxygen);
+            const hydrogens = molecule.children.filter(child => child.userData.isHydrogen);
+
+            if (oxygen) {
+                // Nube de dipolo negativo alrededor del oxígeno
+                const negativeDipoleGeometry = new THREE.SphereGeometry(OXYGEN_DIPOLE_RADIUS, 32, 32);
+                const negativeDipoleMaterial = new THREE.MeshBasicMaterial({
+                    color: NEGATIVE_DIPOLE_COLOR,
+                    transparent: true,
+                    opacity: DIPOLE_OPACITY
+                });
+                const negativeDipoleCloud = new THREE.Mesh(negativeDipoleGeometry, negativeDipoleMaterial);
+                negativeDipoleCloud.position.copy(oxygen.position);
+                dipoleCloudGroup.add(negativeDipoleCloud);
+            }
+
+            // Nubes de dipolo positivo alrededor de los hidrógenos
+            hydrogens.forEach(hydrogen => {
+                const positiveDipoleGeometry = new THREE.SphereGeometry(HYDROGEN_DIPOLE_RADIUS, 32, 32);
+                const positiveDipoleMaterial = new THREE.MeshBasicMaterial({
+                    color: POSITIVE_DIPOLE_COLOR,
+                    transparent: true,
+                    opacity: DIPOLE_OPACITY
+                });
+                const positiveDipoleCloud = new THREE.Mesh(positiveDipoleGeometry, positiveDipoleMaterial);
+                positiveDipoleCloud.position.copy(hydrogen.position);
+                dipoleCloudGroup.add(positiveDipoleCloud);
+            });
+        }
+        
+        function drawHydrogenBonds() {
+            // Limpia los puentes de hidrógeno anteriores
+            bondGroup.clear();
+            let message = '';
+
+            const bondMaterial = new THREE.MeshBasicMaterial({ color: HYDROGEN_BOND_COLOR, transparent: true, opacity: 0.5 });
+            const maxDistance = 3.0; // Distancia máxima para considerar un puente de hidrógeno
+
+            // Si es la simulación de puente de hidrógeno, solo se consideran las dos moléculas
+            if (simulationMode === 'puenteHidrogeno') {
+                const molA = molecules[0];
+                const molB = molecules[1];
+                const hydrogensA = molA.children.filter(child => child.userData.isHydrogen);
+                const hydrogensB = molB.children.filter(child => child.userData.isHydrogen);
+
+                const acceptorA = molA.children.find(child => child.userData.isOxygen || child.userData.isNitrogen);
+                const acceptorB = molB.children.find(child => child.userData.isOxygen || child.userData.isNitrogen);
+
+                let bondFormed = false;
+
+                // Revisar de H de B a A
+                hydrogensB.forEach(hB => {
+                    const globalHPos = new THREE.Vector3();
+                    hB.getWorldPosition(globalHPos);
+
+                    if (acceptorA) {
+                        const globalAcceptorPos = new THREE.Vector3();
+                        acceptorA.getWorldPosition(globalAcceptorPos);
+                        if (globalHPos.distanceTo(globalAcceptorPos) < maxDistance) {
+                            const bond = createBond(globalHPos, globalAcceptorPos, bondMaterial, HYDROGEN_BOND_RADIUS);
+                            bondGroup.add(bond);
+                            bondFormed = true;
+                        }
+                    }
+                });
+
+                // Revisar de H de A a B
+                hydrogensA.forEach(hA => {
+                    const globalHPos = new THREE.Vector3();
+                    hA.getWorldPosition(globalHPos);
+
+                    if (acceptorB) {
+                        const globalAcceptorPos = new THREE.Vector3();
+                        acceptorB.getWorldPosition(globalAcceptorPos);
+                        if (globalHPos.distanceTo(globalAcceptorPos) < maxDistance) {
+                            const bond = createBond(globalHPos, globalAcceptorPos, bondMaterial, HYDROGEN_BOND_RADIUS);
+                            bondGroup.add(bond);
+                            bondFormed = true;
+                        }
+                    }
+                });
+
+                const selectedMolecule = moleculeSelect.value;
+                if (selectedMolecule === 'H2O' && bondFormed) {
+                    message = 'El agua ($$H_2O$$) es una molécula polar y forma fuertes puentes de hidrógeno consigo misma.';
+                } else if (selectedMolecule === 'NH3' && bondFormed) {
+                    message = 'El amoníaco ($$NH_3$$) es una molécula polar y forma puentes de hidrógeno con el agua, al igual que el agua consigo misma.';
+                } else if (selectedMolecule === 'CH4') {
+                    message = 'El metano ($$CH_4$$) es una molécula no polar. No forma puentes de hidrógeno con el agua.';
+                } else {
+                    message = 'Arrastra para rotar y observar la posible interacción.';
+                }
+
+                interactionMessage.innerHTML = message;
+            }
+        }
+
+        function createBond(start, end, material, radius) {
+            const direction = new THREE.Vector3().subVectors(end, start);
+            const orientation = new THREE.Matrix4();
+            orientation.lookAt(start, end, new THREE.Vector3(0, 1, 0));
+            orientation.multiply(new THREE.Matrix4().makeRotationX(Math.PI / 2));
+            
+            const bondGeometry = new THREE.CylinderGeometry(radius, radius, direction.length(), 16);
+            const bondMesh = new THREE.Mesh(bondGeometry, material);
+            bondMesh.applyMatrix4(orientation);
+            bondMesh.position.copy(start).add(direction.multiplyScalar(0.5));
+            
+            return bondMesh;
+        }
+
+        function onMouseDown(event) {
+            isDragging = true;
+            previousMousePosition.x = event.clientX;
+            previousMousePosition.y = event.clientY;
+        }
+
+        function onMouseUp() {
+            isDragging = false;
+        }
+
+        function onMouseMove(event) {
+            if (!isDragging) return;
+
+            const deltaX = event.clientX - previousMousePosition.x;
+            const deltaY = event.clientY - previousMousePosition.y;
+
+            const rotationSpeed = 0.005;
+
+            // Rota el grupo principal
+            mainGroup.rotation.y += deltaX * rotationSpeed;
+            mainGroup.rotation.x += deltaY * rotationSpeed;
+
+            previousMousePosition.x = event.clientX;
+            previousMousePosition.y = event.clientY;
+
+            render();
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            render();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+        window.onload = function() {
+            init();
+            animate();
+        };
+    </script>
+</body>
+</html>
