@@ -1,805 +1,803 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHYSIO-PREPAS | Clase Introductoria</title>
-    <style>
-        /* Fuentes */
-        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHYSIO-PREPAS | Clase Introductoria</title>
+    <style>
+        /* Fuentes */
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
 
-        :root {
-            --bg-color-light: #f0f4f8;
-            --bg-container-light: #ffffff;
-            --text-color-light: #334155;
-            --text-heading-light: #1e293b;
-            --canvas-bg-light: #e2e8f0;
-            --canvas-border-light: #cbd5e1;
-            --sidebar-bg-light: rgba(255, 255, 255, 0.9);
-            --sidebar-shadow-light: rgba(0, 0, 0, 0.2);
-            --backdrop-filter: blur(10px);
-        }
+        :root {
+            --bg-color-light: #f0f4f8;
+            --bg-container-light: #ffffff;
+            --text-color-light: #334155;
+            --text-heading-light: #1e293b;
+            --canvas-bg-light: #e2e8f0;
+            --canvas-border-light: #cbd5e1;
+            --sidebar-bg-light: rgba(255, 255, 255, 0.9);
+            --sidebar-shadow-light: rgba(0, 0, 0, 0.2);
+            --backdrop-filter: blur(10px);
+        }
 
-        body.dark-mode {
-            --bg-color-light: #1e293b;
-            --bg-container-light: #334155;
-            --text-color-light: #e2e8f0;
-            --text-heading-light: #f0f4f8;
-            --canvas-bg-light: #475569;
-            --canvas-border-light: #64748b;
-            --sidebar-bg-light: rgba(51, 65, 85, 0.9);
-            --sidebar-shadow-light: rgba(0, 0, 0, 0.5);
-        }
+        body.dark-mode {
+            --bg-color-light: #1e293b;
+            --bg-container-light: #334155;
+            --text-color-light: #e2e8f0;
+            --text-heading-light: #f0f4f8;
+            --canvas-bg-light: #475569;
+            --canvas-border-light: #64748b;
+            --sidebar-bg-light: rgba(51, 65, 85, 0.9);
+            --sidebar-shadow-light: rgba(0, 0, 0, 0.5);
+        }
 
-        body {
-            font-family: 'Open Sans', sans-serif;
-            background-color: var(--bg-color-light);
-            color: var(--text-color-light);
-            display: flex;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            min-height: 100vh;
-            margin: 0;
-            overflow-x: hidden;
-        }
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
+            display: flex;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
 
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
-            transition: filter 0.3s ease-in-out;
-        }
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: filter 0.3s ease-in-out;
+        }
 
-        .main-content.blur-bg {
-            filter: blur(5px);
-        }
+        .main-content.blur-bg {
+            filter: blur(5px);
+        }
 
-        .container {
-            background-color: var(--bg-container-light);
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 2rem;
-            max-width: 900px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-            box-sizing: border-box;
-        }
+        .container {
+            background-color: var(--bg-container-light);
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            box-sizing: border-box;
+        }
 
-        h1 {
-            font-family: 'Open Sans', sans-serif; /* Cambiado a Open Sans para consistencia */
-            color: var(--text-heading-light);
-            font-size: 2rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 0.5rem;
-            transition: color 0.3s ease;
-        }
+        h1 {
+            font-family: 'Open Sans', sans-serif; /* Cambiado a Open Sans para consistencia */
+            color: var(--text-heading-light);
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
 
-        p {
-            color: var(--text-color-light);
-            text-align: center;
-            margin-top: 0;
-            max-width: 600px;
-            transition: color 0.3s ease;
-        }
+        p {
+            color: var(--text-color-light);
+            text-align: center;
+            margin-top: 0;
+            max-width: 600px;
+            transition: color 0.3s ease;
+        }
 
-        canvas {
-            background-color: var(--canvas-bg-light);
-            border-radius: 0.75rem;
-            border: 2px solid var(--canvas-border-light);
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-            width: 100%;
-            max-width: 800px;
-            height: 500px;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
+        canvas {
+            background-color: var(--canvas-bg-light);
+            border-radius: 0.75rem;
+            border: 2px solid var(--canvas-border-light);
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
 
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
 
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-            width: 180px; /* Ancho fijo para sliders */
-        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            width: 180px; /* Ancho fijo para sliders */
+        }
 
-        .control-group label {
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            cursor: default;
-            text-align: center;
-        }
+        .control-group label {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            cursor: default;
+            text-align: center;
+        }
 
-        .control-group input[type="range"] {
-            width: 100%;
-        }
+        .control-group input[type="range"] {
+            width: 100%;
+        }
 
-        .buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            justify-content: center;
-        }
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+        }
 
-        button, .toggle-btn, .sidebar-btn {
-            background-color: #1e293b;
-            color: #fff;
-            border: 2px solid #3b82f6;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 0 5px #3b82f6;
-        }
+        button, .toggle-btn, .sidebar-btn {
+            background-color: #1e293b;
+            color: #fff;
+            border: 2px solid #3b82f6;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 0 5px #3b82f6;
+        }
 
-        button:hover, .toggle-btn:hover, .sidebar-btn:hover {
-            color: #fff;
-            background-color: #3b82f6;
-            border-color: #2563eb;
-            box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
-            transform: scale(1.05);
-        }
+        button:hover, .toggle-btn:hover, .sidebar-btn:hover {
+            color: #fff;
+            background-color: #3b82f6;
+            border-color: #2563eb;
+            box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
+            transform: scale(1.05);
+        }
 
-        button.active {
-            color: #fff;
-            background-color: #3b82f6;
-            border-color: #2563eb;
-            box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
-            animation: neon-pulse 1.5s ease-in-out infinite alternate;
-        }
+        button.active {
+            color: #fff;
+            background-color: #3b82f6;
+            border-color: #2563eb;
+            box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
+            animation: neon-pulse 1.5s ease-in-out infinite alternate;
+        }
 
-        @keyframes neon-pulse {
-            from {
-                box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
-            }
-            to {
-                box-shadow: 0 0 20px #fff, 0 0 40px #3b82f6, 0 0 60px #3b82f6, 0 0 100px #3b82f6;
-            }
-        }
+        @keyframes neon-pulse {
+            from {
+                box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
+            }
+            to {
+                box-shadow: 0 0 20px #fff, 0 0 40px #3b82f6, 0 0 60px #3b82f6, 0 0 100px #3b82f6;
+            }
+        }
 
-        .info-box {
-            background-color: var(--canvas-bg-light);
-            border: 1px solid var(--canvas-border-light);
-            padding: 1rem;
-            border-radius: 0.75rem;
-            margin-top: 1rem;
-            width: 100%;
-            max-width: 800px;
-            box-sizing: border-box;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
+        .info-box {
+            background-color: var(--canvas-bg-light);
+            border: 1px solid var(--canvas-border-light);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
 
-        .footer {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--canvas-border-light);
-            text-align: center;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            gap: 0.5rem;
-            transition: border-color 0.3s ease;
-        }
+        .footer {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--canvas-border-light);
+            text-align: center;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 0.5rem;
+            transition: border-color 0.3s ease;
+        }
 
-        .footer p {
-            margin: 0;
-            color: var(--text-color-light);
-            min-height: 1.5em;
-            transition: color 0.3s ease;
-        }
+        .footer p {
+            margin: 0;
+            color: var(--text-color-light);
+            min-height: 1.5em;
+            transition: color 0.3s ease;
+        }
 
-        #footerTypingText {
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 2px solid transparent;
-            font-weight: 600;
-        }
+        #footerTypingText {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid transparent;
+            font-weight: 600;
+        }
 
-        .footer a {
-            color: #fff;
-            background-color: #1e293b;
-            border: 2px solid #3b82f6;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 0 5px #3b82f6;
-        }
+        .footer a {
+            color: #fff;
+            background-color: #1e293b;
+            border: 2px solid #3b82f6;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 0 5px #3b82f6;
+        }
 
-        .footer a:hover {
-            color: #fff;
-            background-color: #3b82f6;
-            border-color: #2563eb;
-            box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
-            transform: scale(1.05);
-        }
+        .footer a:hover {
+            color: #fff;
+            background-color: #3b82f6;
+            border-color: #2563eb;
+            box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
+            transform: scale(1.05);
+        }
 
-        /* Sidebar styles */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 300px;
-            background-color: var(--sidebar-bg-light);
-            backdrop-filter: var(--backdrop-filter);
-            box-shadow: 2px 0 10px var(--sidebar-shadow-light);
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
-            z-index: 100;
-            padding: 2rem;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 300px;
+            background-color: var(--sidebar-bg-light);
+            backdrop-filter: var(--backdrop-filter);
+            box-shadow: 2px 0 10px var(--sidebar-shadow-light);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 100;
+            padding: 2rem;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
 
-        .sidebar.open {
-            transform: translateX(0);
-        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
 
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-            margin-bottom: 1rem;
-        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            margin-bottom: 1rem;
+        }
 
-        /* ESTILO MODIFICADO PARA ELIMINAR EL LOGO Y USAR UN TÍTULO DE TEXTO */
-        .sidebar-logo {
-            max-width: 180px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.5rem;
-            /* Estilo para el texto */
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: var(--text-heading-light);
-        }
-        /* FIN ESTILO MODIFICADO */
+        /* ESTILO MODIFICADO PARA ELIMINAR EL LOGO Y USAR UN TÍTULO DE TEXTO */
+        .sidebar-logo {
+            max-width: 180px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            /* Estilo para el texto */
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--text-heading-light);
+        }
+        /* FIN ESTILO MODIFICADO */
 
-        .sidebar-header .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-heading-light);
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: background-color 0.3s;
-        }
+        .sidebar-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-heading-light);
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
 
-        .sidebar-header .close-btn:hover {
-            background-color: rgba(100, 116, 139, 0.2);
-        }
+        .sidebar-header .close-btn:hover {
+            background-color: rgba(100, 116, 139, 0.2);
+        }
 
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 15px;
-        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 15px;
+        }
 
-        .sidebar li {
-            margin-bottom: 1rem;
-            text-align: center;
-        }
+        .sidebar li {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
 
-        .sidebar-btn {
-            width: 100%;
-            white-space: normal;
-        }
+        .sidebar-btn {
+            width: 100%;
+            white-space: normal;
+        }
 
-        .top-bar {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            z-index: 10;
-            display: flex;
-            gap: 10px;
-        }
+        .top-bar {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
 
-        .toggle-btn {
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-            line-height: 1;
-        }
+        .toggle-btn {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            line-height: 1;
+        }
 
-        .toggle-btn svg {
-            width: 24px;
-            height: 24px;
-            stroke: #fff;
-            transition: stroke 0.3s ease;
-        }
-        
-        .toggle-btn:hover svg {
-            stroke: #fff; /* Se mantiene blanco al hacer hover en el modo neon */
-        }
+        .toggle-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: #fff;
+            transition: stroke 0.3s ease;
+        }
+        
+        .toggle-btn:hover svg {
+            stroke: #fff; /* Se mantiene blanco al hacer hover en el modo neon */
+        }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            h1 {
-                font-size: 1.5rem;
-            }
-            p {
-                font-size: 0.9rem;
-            }
-            .controls {
-                flex-direction: column;
-                align-items: center;
-            }
-            .sidebar {
-                width: 250px;
-            }
-        }
-    </style>
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            p {
+                font-size: 0.9rem;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .sidebar {
+                width: 250px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="top-bar">
-        <button id="sidebarToggleBtn" class="toggle-btn">
-            <!-- Icono de Hamburguesa (Menú) -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-        </button>
-        <button id="darkModeToggleBtn" class="toggle-btn">🌙</button>
-    </div>
+    <div class="top-bar">
+        <button id="sidebarToggleBtn" class="toggle-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+        <button id="darkModeToggleBtn" class="toggle-btn">🌙</button>
+    </div>
 
-    <div id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <!-- Título de texto en lugar de logo (según la instrucción de "olvidar el logo") -->
-            <div class="sidebar-logo">Menu</div> 
-            <button id="closeSidebarBtn" class="close-btn">&times;</button>
-        </div>
-        <ul>
-            <li>
-                <button class="sidebar-btn" data-link-type="pdf">Descargar guía-slides de la clase en PDF</button>
-            </li>
-            <li>
-                <button class="sidebar-btn" data-link-type="youtube">Ver Versión Resumida pregrabada en YT</button>
-            </li>
-            <li>
-                <button class="sidebar-btn" data-link-type="quizz">QUIZZ</button>
-            </li>
-            <li>
-                <button class="sidebar-btn" data-link-type="fisiologia">BREVE HISTORIA DE LA FISIOLOGÍA</button>
-            </li>
-            <li>
-                <button class="sidebar-btn" data-link-type="ime">BREVE HISTORIA DEL IME</button>
-            </li>
-            <li>
-                <button class="sidebar-btn" data-link-type="cohesion">FUERZAS DE COHESIÓN | Simulador</button>
-            </li>
-            <li>
-                <button class="sidebar-btn" data-link-type="adhesion">FUERZAS DE ADHESIÓN | Simulador</button>
-            </li>
-            <li>
-                <button class="sidebar-btn" data-link-type="watermol">WaterMol | Simulador</button>
-            </li>
-            <li>
-                <button class="sidebar-btn" data-link-type="liqcorp">Liquidos Corporales | Simulador</button>
-            </li>
-            <!-- NUEVO BOTÓN SOLICITADO -->
-            <li>
-                <button class="sidebar-btn" data-link-type="fase">Cambio de Fase | Simulador</button>
-            </li>
-        </ul>
-    </div>
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+                        <div class="sidebar-logo">Menu</div> 
+            <button id="closeSidebarBtn" class="close-btn">&times;</button>
+        </div>
+        <ul>
+            <li>
+                <button class="sidebar-btn" data-link-type="pdf">Descargar guía-slides de la clase en PDF</button>
+            </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="youtube">Ver Versión Resumida pregrabada en YT</button>
+            </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="quizz">QUIZZ</button>
+            </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="fisiologia">BREVE HISTORIA DE LA FISIOLOGÍA</button>
+            </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="ime">BREVE HISTORIA DEL IME</button>
+            </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="cohesion">FUERZAS DE COHESIÓN | Simulador</button>
+            </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="adhesion">FUERZAS DE ADHESIÓN | Simulador</button>
+            </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="watermol">WaterMol | Simulador</button>
+            </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="liqcorp">Liquidos Corporales | Simulador</button>
+            </li>
+                        <li>
+                <button class="sidebar-btn" data-link-type="fase">Cambio de Fase | Simulador</button>
+            </li>
+        </ul>
+    </div>
 
-    <div class="main-content" id="mainContent">
-        <div class="container">
-            <h1>Simulador de Propiedades del Agua</h1>
-            <p>Observa cómo las moléculas de agua se comportan en diferentes estados. La animación muestra el movimiento y las interacciones para ilustrar la diferencia entre las fases sólida, líquida y gaseosa.</p>
-            <canvas id="waterCanvas"></canvas>
-            <div class="controls">
-                <div class="control-group">
-                    <label for="temperatureSlider">
-                        Temperatura (Velocidad)
-                    </label>
-                    <input type="range" id="temperatureSlider" min="0.1" max="3" value="0.5" step="0.1">
-                </div>
-                <div class="control-group">
-                    <label for="bondStrengthSlider">
-                        Fuerza de Enlace
-                    </label>
-                    <input type="range" id="bondStrengthSlider" min="0.00" max="0.5" value="0.5" step="0.01">
-                </div>
-            </div>
-            <!-- Botones añadidos directamente al HTML para mejor manejo -->
-            <div class="buttons">
-                <button id="solidBtn">Sólido</button>
-                <button id="liquidBtn">Líquido</button>
-                <button id="gasBtn">Gaseoso</button>
-            </div>
-            <div class="info-box">
-                <p id="infoText">
-                    <b>Sólido (Hielo):</b> Las moléculas de agua están en una estructura cristalina fija, con movimiento vibratorio mínimo.
-                </p>
-            </div>
-            <div class="footer">
-                <p>
-                    <span id="footerTypingText"></span>
-                </p>
-                <a href="https://www.instagram.com/gesprache_vzla" target="_blank" rel="noopener noreferrer">@gesprache_vzla</a>
-            </div>
-        </div>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const canvas = document.getElementById('waterCanvas');
-            const ctx = canvas.getContext('2d');
-            const temperatureSlider = document.getElementById('temperatureSlider');
-            const bondStrengthSlider = document.getElementById('bondStrengthSlider');
-            const infoText = document.getElementById('infoText');
-            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-            const closeSidebarBtn = document.getElementById('closeSidebarBtn');
-            const sidebar = document.getElementById('sidebar');
-            const darkModeToggleBtn = document.getElementById('darkModeToggleBtn');
-            const body = document.body;
-            const mainContent = document.getElementById('mainContent');
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <h1>Simulador de Propiedades del Agua</h1>
+            <p>Observa cómo las moléculas de agua se comportan en diferentes estados. La animación muestra el movimiento y las interacciones para ilustrar la diferencia entre las fases sólida, líquida y gaseosa.</p>
+            <canvas id="waterCanvas"></canvas>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="temperatureSlider">
+                        Temperatura (Velocidad)
+                    </label>
+                    <input type="range" id="temperatureSlider" min="0.1" max="3" value="0.5" step="0.1">
+                </div>
+                <div class="control-group">
+                    <label for="bondStrengthSlider">
+                        Fuerza de Enlace
+                    </label>
+                    <input type="range" id="bondStrengthSlider" min="0.00" max="0.5" value="0.5" step="0.01">
+                </div>
+            </div>
+                        <div class="buttons">
+                <button id="solidBtn">Sólido</button>
+                <button id="liquidBtn">Líquido</button>
+                <button id="gasBtn">Gaseoso</button>
+            </div>
+            <div class="info-box">
+                <p id="infoText">
+                    <b>Sólido (Hielo):</b> Las moléculas de agua están en una estructura cristalina fija, con movimiento vibratorio mínimo.
+                </p>
+            </div>
+            <div class="footer">
+                <p>
+                    <span id="footerTypingText"></span>
+                </p>
+                <a href="https://www.instagram.com/gesprache_vzla" target="_blank" rel="noopener noreferrer">@gesprache_vzla</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const canvas = document.getElementById('waterCanvas');
+            const ctx = canvas.getContext('2d');
+            const temperatureSlider = document.getElementById('temperatureSlider');
+            const bondStrengthSlider = document.getElementById('bondStrengthSlider');
+            const infoText = document.getElementById('infoText');
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+            const sidebar = document.getElementById('sidebar');
+            const darkModeToggleBtn = document.getElementById('darkModeToggleBtn');
+            const body = document.body;
+            const mainContent = document.getElementById('mainContent');
 
-            let particles = [];
-            const particleCount = 100;
-            const particleRadius = 4;
-            const particleColor = '#60a5fa';
-            let currentState = 'solid';
+            let particles = [];
+            const particleCount = 100;
+            const particleRadius = 4;
+            const particleColor = '#60a5fa';
+            let currentState = 'solid';
 
-            // Sincroniza los valores iniciales con los sliders
-            let currentTemperature = parseFloat(temperatureSlider.value);
-            let currentBondStrength = parseFloat(bondStrengthSlider.value);
+            // Sincroniza los valores iniciales con los sliders
+            let currentTemperature = parseFloat(temperatureSlider.value);
+            let currentBondStrength = parseFloat(bondStrengthSlider.value);
 
-            // Footer typing animation variables
-            const footerTypingTextSpan = document.getElementById('footerTypingText');
-            const phrases = [
-                "MUCHAS AVENTURAS COMIENZAN CON UN 'SÍ'",
-                "DANOS UN POCO DE AMOR EN...",
-                "DÉJANOS TUS COMENTARIOS EN EL BOTÓN FIJADO"
-            ];
-            let phraseIndex = 0;
-            let charIndex = 0;
-            let isDeleting = false;
-            const typingSpeed = 70;
-            const deletingSpeed = 40;
-            const pauseTime = 1500;
+            // Footer typing animation variables
+            const footerTypingTextSpan = document.getElementById('footerTypingText');
+            const phrases = [
+                "MUCHAS AVENTURAS COMIENZAN CON UN 'SÍ'",
+                "DANOS UN POCO DE AMOR EN...",
+                "DÉJANOS TUS COMENTARIOS EN EL BOTÓN FIJADO"
+            ];
+            let phraseIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+            const typingSpeed = 70;
+            const deletingSpeed = 40;
+            const pauseTime = 1500;
 
-            function typeWriterEffect() {
-                const currentPhrase = phrases[phraseIndex];
-                if (isDeleting) {
-                    footerTypingTextSpan.textContent = currentPhrase.substring(0, charIndex--);
-                } else {
-                    footerTypingTextSpan.textContent = currentPhrase.substring(0, charIndex++);
-                }
-                if (!isDeleting && charIndex > currentPhrase.length) {
-                    isDeleting = true;
-                    setTimeout(typeWriterEffect, pauseTime);
-                } else if (isDeleting && charIndex < 0) {
-                    isDeleting = false;
-                    phraseIndex = (phraseIndex + 1) % phrases.length;
-                    charIndex = 0;
-                    setTimeout(typeWriterEffect, typingSpeed);
-                } else {
-                    const speed = isDeleting ? deletingSpeed : typingSpeed;
-                    setTimeout(typeWriterEffect, speed);
-                }
-            }
+            function typeWriterEffect() {
+                const currentPhrase = phrases[phraseIndex];
+                if (isDeleting) {
+                    footerTypingTextSpan.textContent = currentPhrase.substring(0, charIndex--);
+                } else {
+                    footerTypingTextSpan.textContent = currentPhrase.substring(0, charIndex++);
+                }
+                if (!isDeleting && charIndex > currentPhrase.length) {
+                    isDeleting = true;
+                    setTimeout(typeWriterEffect, pauseTime);
+                } else if (isDeleting && charIndex < 0) {
+                    isDeleting = false;
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                    charIndex = 0;
+                    setTimeout(typeWriterEffect, typingSpeed);
+                } else {
+                    const speed = isDeleting ? deletingSpeed : typingSpeed;
+                    setTimeout(typeWriterEffect, speed);
+                }
+            }
 
-            typeWriterEffect();
+            typeWriterEffect();
 
-            // Sidebar and Dark Mode functionality
-            sidebarToggleBtn.addEventListener('click', () => {
-                sidebar.classList.add('open');
-                mainContent.classList.add('blur-bg');
-            });
+            // Sidebar and Dark Mode functionality
+            sidebarToggleBtn.addEventListener('click', () => {
+                sidebar.classList.add('open');
+                mainContent.classList.add('blur-bg');
+            });
 
-            closeSidebarBtn.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                mainContent.classList.remove('blur-bg');
-            });
+            closeSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                mainContent.classList.remove('blur-bg');
+            });
 
-            // Cierra el menú si se hace clic fuera de él
-            mainContent.addEventListener('click', () => {
-                if (sidebar.classList.contains('open')) {
-                    sidebar.classList.remove('open');
-                    mainContent.classList.remove('blur-bg');
-                }
-            });
+            // Cierra el menú si se hace clic fuera de él
+            mainContent.addEventListener('click', () => {
+                if (sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                    mainContent.classList.remove('blur-bg');
+                }
+            });
 
-            darkModeToggleBtn.addEventListener('click', () => {
-                body.classList.toggle('dark-mode');
-                if (body.classList.contains('dark-mode')) {
-                    darkModeToggleBtn.textContent = '☀️';
-                } else {
-                    darkModeToggleBtn.textContent = '🌙';
-                }
-            });
+            darkModeToggleBtn.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                if (body.classList.contains('dark-mode')) {
+                    darkModeToggleBtn.textContent = '☀️';
+                } else {
+                    darkModeToggleBtn.textContent = '🌙';
+                }
+            });
 
-            // Event listener for the new sidebar buttons
-            document.getElementById('sidebar').addEventListener('click', (e) => {
-                if (e.target.tagName === 'BUTTON' && e.target.classList.contains('sidebar-btn')) {
-                    const linkType = e.target.dataset.linkType;
-                    let url = '';
+            // Event listener for the new sidebar buttons
+            document.getElementById('sidebar').addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON' && e.target.classList.contains('sidebar-btn')) {
+                    const linkType = e.target.dataset.linkType;
+                    let url = '';
 
-                    // Enlaces definidos
-                    if (linkType === 'pdf') {
-                        url = 'URL_DEL_PDF_AQUI'; 
-                    } else if (linkType === 'youtube') {
-                        url = 'URL_DEL_VIDEO_YOUTUBE_AQUI'; 
-                    } else if (linkType === 'quizz') {
-                        url = 'URL_DEL_QUIZZ_AQUI'; 
-                    } else if (linkType === 'fisiologia') {
-                        url = 'tlphysio.html';
-                    } else if (linkType === 'ime') {
-                        url = 'tlime.html';
-                    } else if (linkType === 'cohesion') {
-                        url = 'capilaridad.html';
-                    } else if (linkType === 'adhesion') {
-                        url = 'adhesion.html';
-                    } else if (linkType === 'watermol') {
-                        url = 'watermol.html';
-                    } else if (linkType === 'liqcorp') {
-                        url = 'liqcorp1.html';
-                    } else if (linkType === 'fase') {
-                        url = 'temp.html';
-                    }
+                    // Enlaces definidos
+                    if (linkType === 'pdf') {
+                        // 🛑 MODIFICACIÓN APLICADA AQUÍ 🛑
+                        url = 'https://github.com/gesprachepodcastve/PHYSIO-Intro-WaterPropertiesSimulator1/raw/main/gpintroguia.pdf'; 
+                        // Se usa el enlace 'raw' de GitHub para forzar la descarga o apertura directa
+                    } else if (linkType === 'youtube') {
+                        url = 'URL_DEL_VIDEO_YOUTUBE_AQUI'; 
+                    } else if (linkType === 'quizz') {
+                        url = 'URL_DEL_QUIZZ_AQUI'; 
+                    } else if (linkType === 'fisiologia') {
+                        url = 'tlphysio.html';
+                    } else if (linkType === 'ime') {
+                        url = 'tlime.html';
+                    } else if (linkType === 'cohesion') {
+                        url = 'capilaridad.html';
+                    } else if (linkType === 'adhesion') {
+                        url = 'adhesion.html';
+                    } else if (linkType === 'watermol') {
+                        url = 'watermol.html';
+                    } else if (linkType === 'liqcorp') {
+                        url = 'liqcorp1.html';
+                    } else if (linkType === 'fase') {
+                        url = 'temp.html';
+                    }
 
-                    if (url) {
-                        window.open(url, '_blank');
-                    }
-                }
-            });
+                    if (url) {
+                        window.open(url, '_blank');
+                    }
+                }
+            });
 
-            function resizeCanvas() {
-                canvas.width = canvas.offsetWidth;
-                canvas.height = canvas.offsetHeight;
-                // Re-inicializa partículas en caso de cambio drástico de tamaño
-                if (particles.length > 0) {
-                    initParticles(currentState);
-                }
-            }
+            function resizeCanvas() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                // Re-inicializa partículas en caso de cambio drástico de tamaño
+                if (particles.length > 0) {
+                    initParticles(currentState);
+                }
+            }
 
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
 
-            class Particle {
-                constructor(x, y) {
-                    this.x = x;
-                    this.y = y;
-                    // Almacena la posición inicial (punto de red) para el estado sólido
-                    this.originalX = x; 
-                    this.originalY = y;
-                    // Inicializa con velocidad aleatoria baja
-                    this.vx = (Math.random() - 0.5) * currentTemperature * 0.1;
-                    this.vy = (Math.random() - 0.5) * currentTemperature * 0.1;
-                }
+            class Particle {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    // Almacena la posición inicial (punto de red) para el estado sólido
+                    this.originalX = x; 
+                    this.originalY = y;
+                    // Inicializa con velocidad aleatoria baja
+                    this.vx = (Math.random() - 0.5) * currentTemperature * 0.1;
+                    this.vy = (Math.random() - 0.5) * currentTemperature * 0.1;
+                }
 
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, particleRadius, 0, Math.PI * 2);
-                    ctx.fillStyle = particleColor;
-                    ctx.fill();
-                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, particleRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = particleColor;
+                    ctx.fill();
+                }
 
-                update() {
-                    this.x += this.vx;
-                    this.y += this.vy;
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
 
-                    // Colisión con los bordes del canvas (rebote)
-                    if (this.x - particleRadius < 0 || this.x + particleRadius > canvas.width) {
-                        this.vx *= -1;
-                        this.x = Math.max(particleRadius, Math.min(this.x, canvas.width - particleRadius));
-                    }
-                    if (this.y - particleRadius < 0 || this.y + particleRadius > canvas.height) {
-                        this.vy *= -1;
-                        this.y = Math.max(particleRadius, Math.min(this.y, canvas.height - particleRadius));
-                    }
-                }
+                    // Colisión con los bordes del canvas (rebote)
+                    if (this.x - particleRadius < 0 || this.x + particleRadius > canvas.width) {
+                        this.vx *= -1;
+                        this.x = Math.max(particleRadius, Math.min(this.x, canvas.width - particleRadius));
+                    }
+                    if (this.y - particleRadius < 0 || this.y + particleRadius > canvas.height) {
+                        this.vy *= -1;
+                        this.y = Math.max(particleRadius, Math.min(this.y, canvas.height - particleRadius));
+                    }
+                }
 
-                attract(otherParticle, attractionStrength) {
-                    const dx = otherParticle.x - this.x;
-                    const dy = otherParticle.y - this.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    const minDist = particleRadius * 2;
-                    const maxDist = 80; // Distancia máxima de interacción
+                attract(otherParticle, attractionStrength) {
+                    const dx = otherParticle.x - this.x;
+                    const dy = otherParticle.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const minDist = particleRadius * 2;
+                    const maxDist = 80; // Distancia máxima de interacción
 
-                    if (distance > minDist && distance < maxDist) {
-                        const forceDirectionX = dx / distance;
-                        const forceDirectionY = dy / distance;
-                        
-                        // Fuerza inversamente proporcional al cuadrado de la distancia, atenuada por el slider
-                        const force = attractionStrength * (1 / (distance * 0.1)) * 0.005;
+                    if (distance > minDist && distance < maxDist) {
+                        const forceDirectionX = dx / distance;
+                        const forceDirectionY = dy / distance;
+                        
+                        // Fuerza inversamente proporcional al cuadrado de la distancia, atenuada por el slider
+                        const force = attractionStrength * (1 / (distance * 0.1)) * 0.005;
 
-                        // Aplica la fuerza de atracción
-                        this.vx += forceDirectionX * force;
-                        this.vy += forceDirectionY * force;
-                    }
-                    
-                    // Empuje ligero para evitar que las partículas se superpongan (cercanía)
-                    if (distance < minDist) {
-                        const pushFactor = 0.05 * (minDist - distance) / minDist; 
-                        this.vx -= dx * pushFactor;
-                        this.vy -= dy * pushFactor;
-                    }
-                }
-            }
+                        // Aplica la fuerza de atracción
+                        this.vx += forceDirectionX * force;
+                        this.vy += forceDirectionY * force;
+                    }
+                    
+                    // Empuje ligero para evitar que las partículas se superpongan (cercanía)
+                    if (distance < minDist) {
+                        const pushFactor = 0.05 * (minDist - distance) / minDist; 
+                        this.vx -= dx * pushFactor;
+                        this.vy -= dy * pushFactor;
+                    }
+                }
+            }
 
-            function initParticles(state) {
-                particles = [];
-                const padding = 20; 
-                const availableWidth = canvas.width - 2 * padding;
-                const availableHeight = canvas.height - 2 * padding;
+            function initParticles(state) {
+                particles = [];
+                const padding = 20; 
+                const availableWidth = canvas.width - 2 * padding;
+                const availableHeight = canvas.height - 2 * padding;
 
-                for (let i = 0; i < particleCount; i++) {
-                    let x, y;
+                for (let i = 0; i < particleCount; i++) {
+                    let x, y;
 
-                    if (state === 'solid') {
-                        // Coloca las partículas en una cuadrícula fija (estructura cristalina)
-                        const cols = Math.floor(Math.sqrt(particleCount * availableWidth / availableHeight));
-                        const rows = Math.ceil(particleCount / cols);
-                        const cellWidth = availableWidth / cols;
-                        const cellHeight = availableHeight / rows;
-                        
-                        const row = Math.floor(i / cols);
-                        const col = i % cols;
-                        
-                        x = padding + cellWidth * col + cellWidth / 2;
-                        y = padding + cellHeight * row + cellHeight / 2;
-                        
-                    } else {
-                        // Posición aleatoria
-                        x = Math.random() * availableWidth + padding;
-                        y = Math.random() * availableHeight + padding;
-                    }
-                    particles.push(new Particle(x, y));
-                }
-                
-                // Re-inicializa la velocidad
-                particles.forEach(p => {
-                    // Velocidad aleatoria inicial basada en la temperatura actual
-                    p.vx = (Math.random() - 0.5) * currentTemperature * 0.2;
-                    p.vy = (Math.random() - 0.5) * currentTemperature * 0.2;
-                });
-            }
+                    if (state === 'solid') {
+                        // Coloca las partículas en una cuadrícula fija (estructura cristalina)
+                        const cols = Math.floor(Math.sqrt(particleCount * availableWidth / availableHeight));
+                        const rows = Math.ceil(particleCount / cols);
+                        const cellWidth = availableWidth / cols;
+                        const cellHeight = availableHeight / rows;
+                        
+                        const row = Math.floor(i / cols);
+                        const col = i % cols;
+                        
+                        x = padding + cellWidth * col + cellWidth / 2;
+                        y = padding + cellHeight * row + cellHeight / 2;
+                        
+                    } else {
+                        // Posición aleatoria
+                        x = Math.random() * availableWidth + padding;
+                        y = Math.random() * availableHeight + padding;
+                    }
+                    particles.push(new Particle(x, y));
+                }
+                
+                // Re-inicializa la velocidad
+                particles.forEach(p => {
+                    // Velocidad aleatoria inicial basada en la temperatura actual
+                    p.vx = (Math.random() - 0.5) * currentTemperature * 0.2;
+                    p.vy = (Math.random() - 0.5) * currentTemperature * 0.2;
+                });
+            }
 
-            function changeState(newState) {
-                currentState = newState;
-                const solidBtn = document.getElementById('solidBtn');
-                const liquidBtn = document.getElementById('liquidBtn');
-                const gasBtn = document.getElementById('gasBtn');
+            function changeState(newState) {
+                currentState = newState;
+                const solidBtn = document.getElementById('solidBtn');
+                const liquidBtn = document.getElementById('liquidBtn');
+                const gasBtn = document.getElementById('gasBtn');
 
-                // Remueve la clase 'active' de todos los botones
-                if (solidBtn) solidBtn.classList.remove('active');
-                if (liquidBtn) liquidBtn.classList.remove('active');
-                if (gasBtn) gasBtn.classList.remove('active');
+                // Remueve la clase 'active' de todos los botones
+                if (solidBtn) solidBtn.classList.remove('active');
+                if (liquidBtn) liquidBtn.classList.remove('active');
+                if (gasBtn) gasBtn.classList.remove('active');
 
-                if (newState === 'solid') {
-                    if (solidBtn) solidBtn.classList.add('active');
-                    infoText.innerHTML = "<b>Sólido (Hielo):</b> Las moléculas de agua están en una estructura cristalina fija, con movimiento vibratorio mínimo.";
-                    // Parámetros por defecto para Sólido: Baja T, Alta Cohesión
-                    currentTemperature = 0.5; 
-                    currentBondStrength = 0.5; 
-                } else if (newState === 'liquid') {
-                    if (liquidBtn) liquidBtn.classList.add('active');
-                    infoText.innerHTML = "<b>Líquido (Agua):</b> Las moléculas se mueven libremente, se deslizan y cambian de pareja, pero se mantienen cohesionadas.";
-                    // Parámetros por defecto para Líquido: Media T, Media Cohesión
-                    currentTemperature = 1.5; 
-                    currentBondStrength = 0.05; 
-                } else { // 'gas'
-                    if (gasBtn) gasBtn.classList.add('active');
-                    infoText.innerHTML = "<b>Gaseoso (Vapor):</b> Las moléculas se mueven de forma rápida y caótica, con enlaces de hidrógeno rotos. La cohesión es nula.";
-                    // Parámetros por defecto para Gaseoso: Alta T, Nula Cohesión
-                    currentTemperature = 3.0; 
-                    currentBondStrength = 0.00; 
-                }
-                
-                // Actualiza los sliders a los valores preestablecidos
-                temperatureSlider.value = currentTemperature;
-                bondStrengthSlider.value = currentBondStrength;
-                
-                // Re-dibuja las partículas
-                initParticles(newState);
-            }
+                if (newState === 'solid') {
+                    if (solidBtn) solidBtn.classList.add('active');
+                    infoText.innerHTML = "<b>Sólido (Hielo):</b> Las moléculas de agua están en una estructura cristalina fija, con movimiento vibratorio mínimo.";
+                    // Parámetros por defecto para Sólido: Baja T, Alta Cohesión
+                    currentTemperature = 0.5; 
+                    currentBondStrength = 0.5; 
+                } else if (newState === 'liquid') {
+                    if (liquidBtn) liquidBtn.classList.add('active');
+                    infoText.innerHTML = "<b>Líquido (Agua):</b> Las moléculas se mueven libremente, se deslizan y cambian de pareja, pero se mantienen cohesionadas.";
+                    // Parámetros por defecto para Líquido: Media T, Media Cohesión
+                    currentTemperature = 1.5; 
+                    currentBondStrength = 0.05; 
+                } else { // 'gas'
+                    if (gasBtn) gasBtn.classList.add('active');
+                    infoText.innerHTML = "<b>Gaseoso (Vapor):</b> Las moléculas se mueven de forma rápida y caótica, con enlaces de hidrógeno rotos. La cohesión es nula.";
+                    // Parámetros por defecto para Gaseoso: Alta T, Nula Cohesión
+                    currentTemperature = 3.0; 
+                    currentBondStrength = 0.00; 
+                }
+                
+                // Actualiza los sliders a los valores preestablecidos
+                temperatureSlider.value = currentTemperature;
+                bondStrengthSlider.value = currentBondStrength;
+                
+                // Re-dibuja las partículas
+                initParticles(newState);
+            }
 
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Aplica los valores de los sliders en tiempo real
-                const speedMultiplier = parseFloat(temperatureSlider.value);
-                const attractionStrength = parseFloat(bondStrengthSlider.value);
-                
-                particles.forEach((p1, i) => {
-                    if (currentState === 'solid') {
-                        // 1. Fuerza de Restauración (muelle) al punto de red original
-                        const restoreStrength = attractionStrength * 0.005; // La cohesión (bondStrength) define qué tan fuerte es la red
-                        const dx_orig = p1.originalX - p1.x;
-                        const dy_orig = p1.originalY - p1.y;
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Aplica los valores de los sliders en tiempo real
+                const speedMultiplier = parseFloat(temperatureSlider.value);
+                const attractionStrength = parseFloat(bondStrengthSlider.value);
+                
+                particles.forEach((p1, i) => {
+                    if (currentState === 'solid') {
+                        // 1. Fuerza de Restauración (muelle) al punto de red original
+                        const restoreStrength = attractionStrength * 0.005; // La cohesión (bondStrength) define qué tan fuerte es la red
+                        const dx_orig = p1.originalX - p1.x;
+                        const dy_orig = p1.originalY - p1.y;
 
-                        p1.vx += dx_orig * restoreStrength;
-                        p1.vy += dy_orig * restoreStrength;
+                        p1.vx += dx_orig * restoreStrength;
+                        p1.vy += dy_orig * restoreStrength;
 
-                        // 2. Amortiguación (Damping) para evitar oscilación infinita
-                        p1.vx *= 0.99;
-                        p1.vy *= 0.99;
+                        // 2. Amortiguación (Damping) para evitar oscilación infinita
+                        p1.vx *= 0.99;
+                        p1.vy *= 0.99;
 
-                        // 3. Vibración (Temperatura)
-                        p1.vx += (Math.random() - 0.5) * speedMultiplier * 0.05;
-                        p1.vy += (Math.random() - 0.5) * speedMultiplier * 0.05;
+                        // 3. Vibración (Temperatura)
+                        p1.vx += (Math.random() - 0.5) * speedMultiplier * 0.05;
+                        p1.vy += (Math.random() - 0.5) * speedMultiplier * 0.05;
 
-                    } else { // Liquid or Gas
-                        // 1. Movimiento Browniano (Temperatura) y Damping
-                        p1.vx *= 0.995;
-                        p1.vy *= 0.995;
+                    } else { // Liquid or Gas
+                        // 1. Movimiento Browniano (Temperatura) y Damping
+                        p1.vx *= 0.995;
+                        p1.vy *= 0.995;
 
-                        // Agrega una pequeña fuerza aleatoria continua para movimiento perpetuo
-                        p1.vx += (Math.random() - 0.5) * speedMultiplier * 0.05;
-                        p1.vy += (Math.random() - 0.5) * speedMultiplier * 0.05;
-                        
-                        // 2. Interacción entre partículas (Cohesión)
-                        if (attractionStrength > 0.01) {
-                            particles.slice(i + 1).forEach(p2 => {
-                                p1.attract(p2, attractionStrength);
-                                p2.attract(p1, attractionStrength); // Newton's Third Law
-                            });
-                        }
-                    }
-                    
-                    p1.update();
-                    p1.draw();
-                });
-                
-                requestAnimationFrame(animate);
-            }
+                        // Agrega una pequeña fuerza aleatoria continua para movimiento perpetuo
+                        p1.vx += (Math.random() - 0.5) * speedMultiplier * 0.05;
+                        p1.vy += (Math.random() - 0.5) * speedMultiplier * 0.05;
+                        
+                        // 2. Interacción entre partículas (Cohesión)
+                        if (attractionStrength > 0.01) {
+                            particles.slice(i + 1).forEach(p2 => {
+                                p1.attract(p2, attractionStrength);
+                                p2.attract(p1, attractionStrength); // Newton's Third Law
+                            });
+                        }
+                    }
+                    
+                    p1.update();
+                    p1.draw();
+                });
+                
+                requestAnimationFrame(animate);
+            }
 
-            // Agrega los EventListeners a los botones de estado del agua
-            document.getElementById('solidBtn').addEventListener('click', () => changeState('solid'));
-            document.getElementById('liquidBtn').addEventListener('click', () => changeState('liquid'));
-            document.getElementById('gasBtn').addEventListener('click', () => changeState('gas'));
+            // Agrega los EventListeners a los botones de estado del agua
+            document.getElementById('solidBtn').addEventListener('click', () => changeState('solid'));
+            document.getElementById('liquidBtn').addEventListener('click', () => changeState('liquid'));
+            document.getElementById('gasBtn').addEventListener('click', () => changeState('gas'));
 
-            // Los sliders solo actualizan los valores globales
-            temperatureSlider.addEventListener('input', (e) => {
-                currentTemperature = parseFloat(e.target.value);
-            });
+            // Los sliders solo actualizan los valores globales
+            temperatureSlider.addEventListener('input', (e) => {
+                currentTemperature = parseFloat(e.target.value);
+            });
 
-            bondStrengthSlider.addEventListener('input', (e) => {
-                currentBondStrength = parseFloat(e.target.value);
-            });
+            bondStrengthSlider.addEventListener('input', (e) => {
+                currentBondStrength = parseFloat(e.target.value);
+            });
 
-            // Iniciar la simulación en estado sólido
-            changeState('solid');
-            
-            // Iniciar el loop de animación
-            animate();
-        });
-    </script>
+            // Iniciar la simulación en estado sólido
+            changeState('solid');
+            
+            // Iniciar el loop de animación
+            animate();
+        });
+    </script>
 </body>
 </html>
