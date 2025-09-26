@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación de Cambio de Fase (Rango Extendido)</title>
+    <!-- Incluir Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilo base */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+
+        /* Contenedor principal para la estética plana y geométrica */
+        .container-card {
+            background-color: #ffffff;
+            border: 4px solid #1f2937;
+            border-radius: 12px;
+            box-shadow: 8px 8px 0px 0px #1f2937;
+            max-width: 1200px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Estilo para el Canvas */
+        #mainCanvas {
+            display: block;
+            background-color: #ffffff;
+            /* Usar un alto fijo para la escena de la simulación */
+            height: 350px; 
+            width: 100%;
+        }
+        
+        /* * CLASE: Oculta el contenido, pero preserva el espacio (altura) */
+        .collapse-content.hidden-space-preserved {
+            visibility: hidden; /* Oculta el contenido completamente */
+            opacity: 0;         /* Permite una transición suave */
+        }
+
+        /* Transición suave (solo aplicamos transición a la opacidad y visibilidad) */
+        .collapse-content {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s;
+            max-height: 1000px; 
+        }
+        
+        /* Contenedor relativo para posicionar las etiquetas del gráfico */
+        #graph-container-wrapper {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-card p-4 lg:p-6">
+    <h1 class="text-xl lg:text-3xl font-bold text-gray-800 mb-4 text-center">
+        Laboratorio de Cambio de Fase: Agua (Rango Extendido)
+    </h1>
+    
+    <!-- Contenedor Principal: Simulación a la izquierda, Gráfico a la derecha -->
+    <div class="flex flex-col lg:flex-row gap-4">
+        
+        <!-- Panel de Simulación (Lado Izquierdo) -->
+        <div class="lg:w-1/3 flex flex-col items-center p-3 border-2 border-gray-800 rounded-lg bg-yellow-50 min-h-full">
+            <h2 class="text-lg font-semibold mb-2 text-center">Escena Molecular</h2>
+            
+            <!-- Parámetros de Estado (Adaptados) -->
+            <div id="statusDisplay" class="text-xs lg:text-sm font-mono p-2 mb-3 w-full bg-gray-100 border border-gray-400 rounded text-center">
+                Cargando...
+            </div>
+            
+            <!-- Selector de Unidad de Presión -->
+            <div class="w-full mb-3 flex justify-center items-center text-sm">
+                <label for="pressureUnitSelect" class="mr-2 text-gray-700 font-semibold">Unidad de Presión:</label>
+                <select id="pressureUnitSelect" class="p-1 border border-gray-400 rounded-md bg-white text-gray-800 font-medium">
+                    <option value="kPa">kPa (Kilopascal)</option>
+                    <option value="atm">atm (Atmósfera)</option>
+                    <option value="mmHg">mmHg (Milímetros de Mercurio)</option>
+                </select>
+            </div>
+            
+            <div id="instruction" class="text-xs text-gray-600 mb-3 text-center">
+                Mueve el punto rojo sobre el gráfico para ver el comportamiento.
+            </div>
+            
+            <!-- Canvas para la simulación -->
+            <canvas id="mainCanvas" width="1000" height="350"></canvas>
+            
+            <!-- Botón de Llenado de Vaso -->
+            <button id="refillButton" class="mt-4 p-2 w-full lg:w-4/5 bg-green-500 hover:bg-green-600 text-white font-bold text-sm rounded-lg shadow-md transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed border-2 border-gray-800" disabled>
+                Llenar Vaso de Nuevo (Reiniciar)
+            </button>
+        </div>
+
+        <!-- Panel del Gráfico (Lado Derecho) -->
+        <div class="lg:w-2/3 flex flex-col items-center p-3 border-2 border-gray-800 rounded-lg bg-blue-50">
+            <!-- Título y Botón de Colapsar -->
+            <div class="flex justify-between items-center w-full mb-2">
+                <h2 class="text-lg font-semibold">Gráfico de Calentamiento</h2>
+                <button id="toggleGraphButton" class="p-1 bg-blue-300 hover:bg-blue-400 rounded-md text-gray-800 text-sm font-bold border border-gray-800 transition duration-150">
+                    Ocultar Gráfico
+                </button>
+            </div>
+
+            <!-- Contenido Colapsable -->
+            <div id="graph-collapse-content" class="collapse-content w-full">
+                <!-- Wrapper para posicionar las etiquetas de fase -->
+                <div id="graph-container-wrapper">
+                    <canvas id="graphCanvas" width="600" height="300"></canvas>
+                    
+                    <!-- Contenedor de Referencias de Fase (se llena con JS) -->
+                    <div id="phase-references" class="absolute w-full bottom-0 text-center flex justify-between px-2 pb-1 text-xs font-bold text-gray-700 pointer-events-none">
+                        <!-- Las etiquetas se inyectan aquí -->
+                    </div>
+                </div>
+                <div class="mt-2 text-center text-xs font-semibold">
+                    Eje X: Tiempo (min) | Eje Y: Temperatura (°C)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Configuración y Variables Globales ---
+    const TIME_POINTS = {
+        // Puntos de tiempo aproximados para las transiciones (AJUSTADOS AL NUEVO RANGO)
+        // [Tiempo (min), Temperatura (°C), Fase]
+        T0: [0, -210, 'Sólido'], // Nuevo mínimo: -210°C
+        T1: [4, 0, 'Sólido y Líquido (Fusión)'], // Más tiempo para alcanzar 0°C
+        T2: [9, 0, 'Líquido'],
+        T3: [14, 100, 'Líquido y Gas (Vaporización)'],
+        T4: [19, 100, 'Gas'],
+        T5: [22, 160, 'Gas'] // Nuevo máximo: 160°C
+    };
+    
+    // Constantes de Presión
+    const ATMOSPHERIC_PRESSURE_KPA = 101.325; 
+    
+    const TABLE_HEIGHT_OFFSET = 50; 
+
+    let currentTime = 5; 
+    let isDragging = false;
+    let currentPressureUnit = 'kPa'; 
+
+    // Canvas y Contextos
+    const mainCanvas = document.getElementById('mainCanvas');
+    const graphCanvas = document.getElementById('graphCanvas');
+    const ctx = mainCanvas.getContext('2d');
+    const gtx = graphCanvas.getContext('2d');
+    const refillButton = document.getElementById('refillButton'); 
+    const statusDisplay = document.getElementById('statusDisplay');
+    const phaseReferences = document.getElementById('phase-references');
+    const toggleButton = document.getElementById('toggleGraphButton');
+    const graphContent = document.getElementById('graph-collapse-content');
+    const pressureUnitSelect = document.getElementById('pressureUnitSelect');
+
+    // Dimensiones del Gráfico (AJUSTADO A NUEVOS LÍMITES)
+    const GRAPH_PADDING = 30; 
+    const MAX_TIME = TIME_POINTS.T5[0]; 
+    const MIN_TEMP = TIME_POINTS.T0[1]; // -210
+    const MAX_TEMP = TIME_POINTS.T5[1]; // 160
+    const TEMP_RANGE = MAX_TEMP - MIN_TEMP; // 370
+
+    // Colores y Constantes
+    const COLOR_PRIMARY = '#f8d147';
+    const COLOR_ACCENT = '#ff6b6b'; 
+    const COLOR_ICE = '#a0c4ff';     
+    const COLOR_WATER = '#6fa8dc';   
+    const COLOR_VAPOR = '#cccccc';   
+    const COLOR_OUTLINE = '#1f2937';
+    const glassH = 200; 
+    const NUM_MOLECULES = 80;
+    const PARTICLE_RADIUS = 3;
+
+    // --- Funciones de Conversión de Gráfico ---
+
+    /** Convierte el tiempo (min) a coordenada X en el canvas del gráfico. */
+    function timeToX(time) {
+        const currentGraphWidth = graphCanvas.width - 2 * GRAPH_PADDING;
+        return GRAPH_PADDING + (time / MAX_TIME) * currentGraphWidth;
+    }
+
+    /** Convierte la temperatura (°C) a coordenada Y en el canvas del gráfico. */
+    function tempToY(temp) {
+        const currentGraphHeight = graphCanvas.height - 2 * GRAPH_PADDING;
+        const normalizedTemp = temp - MIN_TEMP; 
+        return GRAPH_PADDING + currentGraphHeight - (normalizedTemp / TEMP_RANGE) * currentGraphHeight;
+    }
+
+    /** Convierte la coordenada X del canvas a tiempo (min). */
+    function xToTime(x) {
+        const currentGraphWidth = graphCanvas.width - 2 * GRAPH_PADDING;
+        const timeX = x - GRAPH_PADDING;
+        return Math.max(0, Math.min(MAX_TIME, (timeX / currentGraphWidth) * MAX_TIME));
+    }
+    
+    /**
+     * Convierte la presión de kPa a la unidad seleccionada y la formatea.
+     * @param {number} kPaValue Presión en Kilopascales.
+     * @returns {{value: string, unit: string}} Valor y unidad de la presión formateados.
+     */
+    function formatPressure(kPaValue) {
+        let value;
+        let unit;
+        
+        if (currentPressureUnit === 'atm') {
+            // 1 atm = 101.325 kPa
+            value = kPaValue / 101.325;
+            unit = 'atm';
+            return { value: value.toFixed(3), unit }; 
+        } else if (currentPressureUnit === 'mmHg') {
+            // 1 kPa = 7.50062 mmHg (760 mmHg / 101.325 kPa)
+            value = kPaValue * 7.50062;
+            unit = 'mmHg';
+            return { value: value.toFixed(1), unit }; 
+        } else { // kPa (default)
+            value = kPaValue;
+            unit = 'kPa';
+            return { value: value.toFixed(2), unit }; 
+        }
+    }
+
+
+    /**
+     * Calcula la presión de vapor del agua en kPa usando una aproximación.
+     * @param {number} temp Temperatura en °C.
+     * @returns {number} Presión de vapor en kPa.
+     */
+    function calculateVaporPressure(temp) {
+        // Puntos clave: P(0°C) ~ 0.61 kPa, P(100°C) = 101.325 kPa
+        
+        if (temp < 0) {
+            // Aproximación logarítmica para el hielo
+            // La presión de vapor cae MUY rápidamente a temperaturas tan bajas como -210C
+            // Usamos una función que cae exponencialmente (muy baja a -210C)
+            return Math.max(0.0001, 0.61 * Math.exp(0.01 * temp)); 
+        } 
+        
+        if (temp >= 100) {
+            // Presión de vapor es igual a la presión atmosférica asumida (punto de ebullición)
+            return ATMOSPHERIC_PRESSURE_KPA;
+        }
+
+        // Si está entre 0°C y 100°C (fórmula empírica simple)
+        const normalizedTemp = temp / 100;
+        return ATMOSPHERIC_PRESSURE_KPA * Math.pow(normalizedTemp, 4.2);
+    }
+
+
+    /**
+     * Calcula la temperatura y la fase en un tiempo dado (currentTime).
+     */
+    function calculateState(time) {
+        const points = [TIME_POINTS.T0, TIME_POINTS.T1, TIME_POINTS.T2, TIME_POINTS.T3, TIME_POINTS.T4, TIME_POINTS.T5];
+        let temp = 0;
+        let phase = "";
+        let found = false;
+
+        for (let i = 0; i < points.length - 1; i++) {
+            const [tA, tempA, phaseA] = points[i];
+            const [tB, tempB, phaseB] = points[i + 1];
+
+            if (time >= tA && time <= tB) {
+                if (tempA === tempB) {
+                    // Plateau (Cambio de fase isobárico)
+                    temp = tempA;
+                    phase = phaseA; 
+                } else {
+                    // Segmento inclinado (Calentamiento)
+                    const slope = (tempB - tempA) / (tB - tA);
+                    temp = tempA + slope * (time - tA);
+                    phase = phaseA; 
+                }
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+             // Limitar a los puntos extremos
+            if (time >= TIME_POINTS.T5[0]) {
+                temp = TIME_POINTS.T5[1];
+                phase = TIME_POINTS.T5[2];
+            } else if (time <= TIME_POINTS.T0[0]) {
+                temp = TIME_POINTS.T0[1];
+                phase = TIME_POINTS.T0[2];
+            }
+        }
+        
+        const vaporPressure = calculateVaporPressure(temp);
+
+        return { 
+            temp: parseFloat(temp.toFixed(1)), 
+            phase,
+            pvapor: vaporPressure 
+        };
+    }
+
+    /**
+     * Calcula la intensidad de la llama.
+     */
+    function getHeatRate(time) {
+        const points = [TIME_POINTS.T0, TIME_POINTS.T1, TIME_POINTS.T2, TIME_POINTS.T3, TIME_POINTS.T4, TIME_POINTS.T5];
+        if (time >= TIME_POINTS.T5[0] || time < TIME_POINTS.T0[0]) return 0;
+
+        for (let i = 0; i < points.length - 1; i++) {
+            const [tA, tempA] = points[i];
+            const [tB, tempB] = points[i + 1];
+
+            if (time >= tA && time <= tB) {
+                if (Math.abs(tempA - tempB) > 0) return 1; // Calentamiento Activo
+                return 0.5; // Calentamiento Latente (Meseta)
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Calcula el nivel de líquido restante (0.0 a 1.0).
+     */
+    function calculateLiquidLevel(time) {
+        if (time < TIME_POINTS.T3[0]) return 1; 
+        if (time >= TIME_POINTS.T4[0]) return 0;
+
+        const evapTime = TIME_POINTS.T4[0] - TIME_POINTS.T3[0];
+        const elapsedEvap = time - TIME_POINTS.T3[0];
+        
+        return 1 - Math.min(1, Math.max(0, elapsedEvap / evapTime));
+    }
+
+    // --- Clase para las Moléculas ---
+    let molecules = [];
+
+    class Molecule {
+        // ... (Clase Molecule sin cambios funcionales en su comportamiento)
+        constructor(w, h) {
+            this.x = 0;
+            this.y = 0;
+            this.initialX = 0; 
+            this.initialY = 0;
+            this.vx = 0;
+            this.vy = 0;
+            this.radius = PARTICLE_RADIUS;
+            this.color = COLOR_ICE;
+            this.isVapor = false;
+            this.reset(w, h);
+        }
+
+        reset(w, h) {
+            const glassW = 100;
+            const contentH = glassH * 0.9;
+            const glassBaseY = h - TABLE_HEIGHT_OFFSET - 10; 
+
+            this.x = w / 2 + (Math.random() - 0.5) * (glassW - 10);
+            this.y = glassBaseY - (Math.random() * contentH);
+            
+            this.initialX = this.x;
+            this.initialY = this.y;
+            this.vx = 0;
+            this.vy = 0;
+            this.radius = PARTICLE_RADIUS;
+            this.isVapor = false;
+            this.color = COLOR_ICE;
+        }
+
+        draw(ctx) {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+            ctx.strokeStyle = COLOR_OUTLINE;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        }
+
+        applyMotion(kineticEnergyScale, w, h, fillH, topFillY) {
+            const glassW = 100;
+            const glassX = w / 2;
+            const glassBaseY = h - TABLE_HEIGHT_OFFSET - 10;
+            const wallLeft = glassX - glassW / 2 + this.radius;
+            const wallRight = glassX + glassW / 2 - this.radius;
+
+            if (this.isVapor) {
+                this.y += this.vy;
+                this.x += this.vx;
+                this.radius *= 0.99; 
+                this.vy *= 0.99;
+                this.vy -= 0.05; 
+                if (this.radius < 0.2 || this.y < 0) {
+                    this.reset(w, h);
+                    this.isVapor = false;
+                }
+            } else if (fillH < this.radius * 2) {
+                 this.isVapor = true; 
+                 this.color = COLOR_VAPOR;
+                 this.vy = -0.5;
+                 this.vx = 0;
+            } else if (kineticEnergyScale <= 0.2) {
+                // Sólido
+                const targetX = this.initialX;
+                const targetY = this.initialY;
+                const dampening = 0.05;
+                // La vibración (movimiento aleatorio) es proporcional a la energía cinética.
+                this.x += (targetX - this.x) * dampening + (Math.random() - 0.5) * kineticEnergyScale * 5;
+                this.y += (targetY - this.y) * dampening + (Math.random() - 0.5) * kineticEnergyScale * 5;
+                this.x = Math.max(wallLeft, Math.min(wallRight, this.x));
+                this.y = Math.max(topFillY + this.radius, Math.min(glassBaseY - this.radius, this.y));
+            } else {
+                // Líquido
+                this.vx += (Math.random() * 2 - 1) * kineticEnergyScale * 0.1;
+                this.vy += (Math.random() * 2 - 1) * kineticEnergyScale * 0.1;
+                this.vx *= 0.9;
+                this.vy *= 0.9;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < wallLeft || this.x > wallRight) {
+                    this.vx *= -1;
+                    this.x = Math.max(wallLeft, Math.min(wallRight, this.x));
+                }
+
+                if (this.y > glassBaseY - this.radius) {
+                    this.vy *= -1;
+                    this.y = glassBaseY - this.radius;
+                }
+                
+                if (this.y < topFillY + this.radius) {
+                    this.vy *= -1;
+                    this.y = topFillY + this.radius;
+                }
+            }
+        }
+    }
+
+
+    // --- Inicialización y Reinicio ---
+
+    function initMolecules() {
+        mainCanvas.width = mainCanvas.offsetWidth; 
+        mainCanvas.height = mainCanvas.offsetHeight;
+
+        molecules = [];
+        const w = mainCanvas.width;
+        const h = mainCanvas.height;
+        for (let i = 0; i < NUM_MOLECULES; i++) {
+            molecules.push(new Molecule(w, h));
+        }
+    }
+
+    function refillGlass() {
+        currentTime = TIME_POINTS.T0[0];
+        initMolecules(); 
+        isDragging = false; 
+        refillButton.disabled = true;
+        graphCanvas.style.cursor = 'grab';
+        update(); 
+    }
+    
+    refillButton.addEventListener('click', refillGlass);
+
+    // --- Dibujo del Gráfico (Canvas Gráfico) ---
+
+    // Genera las etiquetas HTML para las fases debajo del gráfico
+    function generatePhaseReferences() {
+        const phases = [
+            { start: TIME_POINTS.T0[0], end: TIME_POINTS.T1[0], label: 'Sólido' },
+            { start: TIME_POINTS.T1[0], end: TIME_POINTS.T2[0], label: 'Fusión' },
+            { start: TIME_POINTS.T2[0], end: TIME_POINTS.T3[0], label: 'Líquido' },
+            { start: TIME_POINTS.T3[0], end: TIME_POINTS.T4[0], label: 'Vaporización' },
+            { start: TIME_POINTS.T4[0], end: TIME_POINTS.T5[0], label: 'Gas' }
+        ];
+
+        let html = '';
+        const graphWrapperWidth = document.getElementById('graph-container-wrapper').offsetWidth;
+        
+        phases.forEach(p => {
+            const startX = timeToX(p.start);
+            const endX = timeToX(p.end);
+            
+            if(graphWrapperWidth > 0) {
+                const centerOffset = startX + (endX - startX) / 2;
+                
+                if (centerOffset > GRAPH_PADDING && centerOffset < graphCanvas.width - GRAPH_PADDING) {
+                    html += `
+                        <div style="position: absolute; left: ${centerOffset}px; transform: translateX(-50%); white-space: nowrap;">
+                            ${p.label}
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        phaseReferences.style.height = '30px'; 
+        phaseReferences.innerHTML = html;
+    }
+
+
+    function drawGraph() {
+        graphCanvas.width = graphCanvas.offsetWidth;
+        graphCanvas.height = 300; 
+
+        gtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+        gtx.lineWidth = 3;
+        gtx.strokeStyle = COLOR_OUTLINE;
+        gtx.lineCap = 'round';
+        gtx.font = '12px Inter';
+
+        // 1. Dibujar Ejes
+        gtx.beginPath();
+        gtx.moveTo(GRAPH_PADDING, GRAPH_PADDING);
+        gtx.lineTo(GRAPH_PADDING, graphCanvas.height - GRAPH_PADDING);
+        gtx.lineTo(graphCanvas.width - GRAPH_PADDING, graphCanvas.height - GRAPH_PADDING);
+        gtx.stroke();
+
+        // 2. Marcas de Temperatura (ACTUALIZADAS)
+        gtx.fillStyle = COLOR_OUTLINE;
+        gtx.textAlign = 'right';
+        const tempMarkers = [MIN_TEMP, -100, 0, 100, MAX_TEMP]; // -210, -100, 0, 100, 160
+        tempMarkers.forEach(t => {
+            const y = tempToY(t);
+            gtx.fillText(t.toString(), GRAPH_PADDING - 5, y + 4);
+            // Línea de referencia (0°C y 100°C)
+            if (t === 0 || t === 100) {
+                gtx.beginPath();
+                gtx.setLineDash([5, 5]);
+                gtx.strokeStyle = t === 0 ? '#6c757d' : COLOR_ACCENT;
+                gtx.moveTo(GRAPH_PADDING, y);
+                gtx.lineTo(graphCanvas.width - GRAPH_PADDING, y);
+                gtx.stroke();
+                gtx.setLineDash([]);
+            }
+        });
+
+        // 3. Dibujar Curva (Línea principal)
+        gtx.beginPath();
+        gtx.strokeStyle = COLOR_OUTLINE;
+        gtx.lineWidth = 4;
+        const points = [TIME_POINTS.T0, TIME_POINTS.T1, TIME_POINTS.T2, TIME_POINTS.T3, TIME_POINTS.T4, TIME_POINTS.T5];
+
+        points.forEach(([t, temp], index) => {
+            const x = timeToX(t);
+            const y = tempToY(temp);
+            if (index === 0) gtx.moveTo(x, y);
+            else gtx.lineTo(x, y);
+        });
+        gtx.stroke();
+
+        // 4. Dibujar el punto interactivo (Slider)
+        const { temp } = calculateState(currentTime);
+        const currentX = timeToX(currentTime);
+        const currentY = tempToY(temp);
+
+        gtx.beginPath();
+        gtx.arc(currentX, currentY, 8, 0, 2 * Math.PI);
+        gtx.fillStyle = COLOR_ACCENT; 
+        gtx.fill();
+        gtx.strokeStyle = COLOR_OUTLINE;
+        gtx.lineWidth = 2;
+        gtx.stroke();
+
+        // 5. Líneas de rastreo desde el punto
+        gtx.setLineDash([3, 3]);
+        gtx.strokeStyle = '#495057';
+        gtx.beginPath();
+        gtx.moveTo(currentX, currentY);
+        gtx.lineTo(currentX, graphCanvas.height - GRAPH_PADDING);
+        gtx.stroke();
+        gtx.beginPath();
+        gtx.moveTo(currentX, currentY);
+        gtx.lineTo(GRAPH_PADDING, currentY);
+        gtx.stroke();
+        gtx.setLineDash([]);
+
+        // 6. Etiqueta de tiempo (en la parte inferior, centrada en el punto)
+        gtx.textAlign = 'center';
+        gtx.font = 'bold 12px Inter';
+        gtx.fillStyle = COLOR_ACCENT;
+        gtx.fillText(`${currentTime.toFixed(1)}`, currentX, graphCanvas.height - GRAPH_PADDING + 15);
+        
+        generatePhaseReferences();
+    }
+
+    function drawScene(temp, phase, liquidLevel) {
+        ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+        const w = mainCanvas.width;
+        const h = mainCanvas.height;
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = COLOR_OUTLINE;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        const tableY = h - TABLE_HEIGHT_OFFSET; 
+        const glassX = w / 2;
+        const glassBaseY = tableY - 10; 
+        const glassW = 100;
+
+        // 1. Mesa y Mechero
+        ctx.fillStyle = COLOR_PRIMARY;
+        ctx.fillRect(0, tableY, w, h - tableY);
+        ctx.strokeRect(0, tableY, w, h - tableY);
+
+        const burnerW = 60;
+        const burnerH = 40;
+        const burnerX = glassX - burnerW / 2;
+        const burnerY = tableY - burnerH;
+
+        ctx.fillStyle = '#6c757d';
+        ctx.fillRect(burnerX, burnerY, burnerW, burnerH);
+        ctx.strokeRect(burnerX, burnerY, burnerW, burnerH);
+
+        const heatRate = getHeatRate(currentTime);
+        let flameActive = heatRate > 0;
+        let flameH = flameActive ? 20 + (heatRate * 15) : 5; 
+        let flameOpacity = flameActive ? heatRate : 0.2;
+        let flameColor = COLOR_ACCENT;
+
+        if (flameActive) {
+            ctx.globalAlpha = flameOpacity;
+            ctx.fillStyle = flameColor;
+            ctx.beginPath();
+            ctx.moveTo(glassX - 8, burnerY);
+            ctx.lineTo(glassX, burnerY - flameH);
+            ctx.lineTo(glassX + 8, burnerY);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+
+        // 3. Contenido y energía cinética (ESCALADO PARA EL NUEVO RANGO)
+        let fillH = glassH * 0.9 * liquidLevel;
+        let kineticEnergyScale = 0; 
+        
+        // El factor de energía cinética debe escalar de forma no lineal para que se note
+        // 0.05 (mínimo, ~-210C) a 1.0 (máximo, ~160C)
+        // Normalizar la temperatura actual dentro del rango total
+        const normalizedTemp = (temp - MIN_TEMP) / TEMP_RANGE; // (Temp - (-210)) / 370
+        kineticEnergyScale = Math.max(0.01, Math.min(1.0, normalizedTemp * 1.5)); // Usamos 1.5 para saturar la energía a 160C
+
+        const topFillY = glassBaseY - fillH;
+
+        // 4. Moléculas
+        let particleColor = temp < 0 ? COLOR_ICE : COLOR_WATER;
+        let steamRate = 0;
+
+        if (temp >= 100) {
+            steamRate = 0.01 + (0.05 * (temp - 100) / 60); // Ajustar la tasa al nuevo máximo de 160C
+            particleColor = COLOR_WATER;
+        } else if (temp < 0) {
+            particleColor = COLOR_ICE;
+        } else {
+            particleColor = COLOR_WATER;
+        }
+
+        molecules.forEach(mol => {
+            mol.applyMotion(kineticEnergyScale, w, h, fillH, topFillY);
+            
+            if (!mol.isVapor) {
+                mol.color = particleColor;
+            } else {
+                mol.color = COLOR_VAPOR;
+            }
+
+            if (temp >= 100 && liquidLevel > 0.05 && !mol.isVapor && mol.y <= topFillY + 5 && Math.random() < steamRate) {
+                mol.isVapor = true;
+                mol.color = COLOR_VAPOR;
+                mol.vy = -Math.random() * 2 - 1;
+                mol.vx = (Math.random() - 0.5) * 1;
+            }
+
+            mol.draw(ctx);
+        });
+
+        // 5. Contorno del Vaso
+        const glassOutline = [
+            [glassX - glassW / 2, glassBaseY],
+            [glassX - glassW / 2, glassBaseY - glassH],
+            [glassX + glassW / 2, glassBaseY - glassH],
+            [glassX + glassW / 2, glassBaseY]
+        ];
+        ctx.strokeStyle = COLOR_OUTLINE;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(glassOutline[0][0], glassOutline[0][1]);
+        ctx.lineTo(glassOutline[1][0], glassOutline[1][1]);
+        ctx.lineTo(glassOutline[2][0], glassOutline[2][1]);
+        ctx.lineTo(glassOutline[3][0], glassOutline[3][1]);
+        ctx.stroke();
+
+        // 6. Etiqueta de Temperatura
+        ctx.fillStyle = COLOR_OUTLINE;
+        ctx.font = 'bold 24px Inter'; 
+        ctx.textAlign = 'center';
+        ctx.fillText(`${temp}°C`, glassX, glassBaseY - glassH - 10);
+    }
+
+    // --- Lógica del Bucle ---
+
+    function animate() {
+        const { temp, phase, pvapor } = calculateState(currentTime);
+        const liquidLevel = calculateLiquidLevel(currentTime);
+        const waterFinished = liquidLevel <= 0.01;
+
+        // --- Gestión del Botón y Arrastre ---
+        if (waterFinished || currentTime >= TIME_POINTS.T5[0]) {
+            refillButton.disabled = false;
+            if (!isDragging) {
+                graphCanvas.style.cursor = 'default';
+            }
+        } else {
+            refillButton.disabled = true;
+            if (!isDragging) {
+                graphCanvas.style.cursor = 'grab';
+            }
+        }
+        
+        // --- Cálculo y formato de las presiones ---
+        const atmPressure = formatPressure(ATMOSPHERIC_PRESSURE_KPA);
+        const vaporPressure = formatPressure(pvapor);
+
+
+        // --- Actualización del Display de Estado ---
+        statusDisplay.innerHTML = `
+            <div class="flex justify-between flex-wrap text-center py-1">
+                <span class="p-1">T: ${temp}°C</span> |
+                <span class="p-1">Min: ${currentTime.toFixed(1)}</span> |
+                <span class="p-1 font-extrabold">${phase}</span>
+            </div>
+            <div class="flex justify-between flex-wrap text-center border-t border-gray-300 pt-1">
+                <span class="p-1">Presión Atmosférica: ${atmPressure.value} ${atmPressure.unit}</span> |
+                <span class="p-1">Presión de Vapor: ${vaporPressure.value} ${vaporPressure.unit}</span>
+            </div>
+        `;
+        
+        if (waterFinished) {
+            statusDisplay.innerHTML += '<div class="text-red-600 font-extrabold text-xs">¡AGUA EVAPORADA!</div>';
+        }
+
+        drawGraph(); 
+        drawScene(temp, phase, liquidLevel);
+
+        requestAnimationFrame(animate);
+    }
+
+    function update() {
+        drawGraph();
+    }
+
+    // --- Lógica Desplegable ---
+    let graphCollapsed = false;
+
+    toggleButton.addEventListener('click', () => {
+        graphCollapsed = !graphCollapsed;
+        if (graphCollapsed) {
+            graphContent.classList.add('hidden-space-preserved');
+            toggleButton.textContent = 'Mostrar Gráfico';
+        } else {
+            graphContent.classList.remove('hidden-space-preserved');
+            toggleButton.textContent = 'Ocultar Gráfico';
+            drawGraph(); 
+        }
+    });
+
+    // --- Manejador para el selector de unidad de presión ---
+    pressureUnitSelect.addEventListener('change', (event) => {
+        currentPressureUnit = event.target.value;
+    });
+
+
+    // --- Manejadores de Interacción (Mouse y Touch) ---
+    
+    function getMousePos(canvas, event) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
+        const clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
+    }
+
+    function handleMouseDown(event) {
+        if (!refillButton.disabled && !isDragging) return; 
+
+        const pos = getMousePos(graphCanvas, event);
+        const { temp } = calculateState(currentTime);
+        const currentX = timeToX(currentTime);
+        const currentY = tempToY(temp);
+
+        const distance = Math.sqrt(Math.pow(pos.x - currentX, 2) + Math.pow(pos.y - currentY, 2));
+
+        if (distance < 15) { 
+            isDragging = true;
+            graphCanvas.style.cursor = 'grabbing';
+        }
+    }
+
+    function handleMouseMove(event) {
+        if (!isDragging) return;
+        event.preventDefault(); 
+        const pos = getMousePos(graphCanvas, event);
+        const newTime = xToTime(pos.x);
+
+        if (Math.abs(newTime - currentTime) > 0.01) {
+            currentTime = newTime;
+            update();
+        }
+    }
+
+    function handleMouseUp() {
+        if (isDragging) {
+            isDragging = false;
+            if (refillButton.disabled) {
+                graphCanvas.style.cursor = 'grab';
+            } else {
+                graphCanvas.style.cursor = 'default';
+            }
+        }
+    }
+
+    function handleTouchStart(event) {
+        if (!refillButton.disabled) return;
+        handleMouseDown(event);
+    }
+
+    function handleTouchMove(event) {
+        handleMouseMove(event);
+    }
+
+    function handleTouchEnd(event) {
+        handleMouseUp();
+    }
+
+    // Asignar Event Listeners
+    graphCanvas.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    graphCanvas.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+
+
+    // Inicialización al cargar la página y manejar el redimensionamiento de la ventana
+    window.onload = function() {
+        initMolecules(); 
+        window.addEventListener('resize', () => {
+             initMolecules(); 
+             drawGraph();
+        });
+        
+        graphCanvas.style.cursor = 'grab';
+        update();
+        animate(); // Iniciar el bucle de animación
+    };
+
+</script>
+</body>
+</html>
