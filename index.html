@@ -371,6 +371,9 @@
             <li>
                 <button class="sidebar-btn" data-link-type="cohesion">FUERZAS DE COHESIÓN | Simulador</button>
             </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="adhesion">FUERZAS DE ADHESIÓN | Simulador</button>
+            </li>
         </ul>
     </div>
 
@@ -510,6 +513,8 @@
                         url = 'tlime.html'; // Se abre el archivo tlime.html
                     } else if (linkType === 'cohesion') {
                         url = 'capilaridad.html'; // El nuevo enlace para el simulador de cohesión
+                    } else if (linkType === 'adhesion') {
+                        url = 'adhesion.html'; // El nuevo enlace para el simulador de adhesión
                     }
 
                     if (url) {
