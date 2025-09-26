@@ -277,8 +277,16 @@
         }
 
         .sidebar-logo {
+            /* Placeholder for a logo, since we can't use external images here */
             max-width: 150px;
-            height: auto;
+            height: 50px;
+            background-color: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.25rem;
             border-radius: 0.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
@@ -307,6 +315,7 @@
 
         .sidebar-btn {
             width: 100%;
+            white-space: normal; /* Permite que el texto se ajuste si es largo */
         }
 
         .top-bar {
@@ -346,6 +355,7 @@
 <body>
     <div class="top-bar">
         <button id="sidebarToggleBtn" class="toggle-btn">
+            <!-- Icono de Hamburguesa (Menú) -->
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -357,7 +367,8 @@
 
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
-            <img src="logo.png" alt="Logo de la compañía" class="sidebar-logo">
+            <!-- Usando un div como placeholder de logo -->
+            <div class="sidebar-logo">GESPRÄCHE VZLA</div>
             <button id="closeSidebarBtn" class="close-btn">&times;</button>
         </div>
         <ul>
@@ -387,6 +398,10 @@
             </li>
             <li>
                 <button class="sidebar-btn" data-link-type="liqcorp">Liquidos Corporales | Simulador</button>
+            </li>
+            <!-- NUEVO BOTÓN SOLICITADO -->
+            <li>
+                <button class="sidebar-btn" data-link-type="fase">Cambio de Fase | Simulador</button>
             </li>
         </ul>
     </div>
@@ -542,9 +557,10 @@
                         url = 'adhesion.html'; // El nuevo enlace para el simulador de adhesión
                     } else if (linkType === 'watermol') {
                         url = 'watermol.html'; // Enlace para el simulador WaterMol
-                    }
                     } else if (linkType === 'liqcorp') {
                         url = 'liqcorp1.html'; // Enlace para el simulador Liquidos Corporales
+                    } else if (linkType === 'fase') {
+                        url = 'temp.html'; // NUEVO ENLACE: Cambio de Fase | Simulador
                     }
 
                     if (url) {
@@ -565,7 +581,8 @@
                 constructor(x, y) {
                     this.x = x;
                     this.y = y;
-                    this.vx = (Math.random() - 0.5) * currentTemperature;
+                    // Inicializa con una velocidad determinada por la temperatura actual
+                    this.vx = (Math.random() - 0.5) * currentTemperature; 
                     this.vy = (Math.random() - 0.5) * currentTemperature;
                 }
 
@@ -580,6 +597,7 @@
                     this.x += this.vx;
                     this.y += this.vy;
 
+                    // Colisión con los bordes del canvas
                     if (this.x - particleRadius < 0 || this.x + particleRadius > canvas.width) {
                         this.vx *= -1;
                         this.x = Math.max(particleRadius, Math.min(this.x, canvas.width - particleRadius));
@@ -595,33 +613,56 @@
                     const dy = otherParticle.y - this.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
+                    // La atracción ocurre solo dentro de un rango y no cuando están demasiado cerca (para evitar explosiones)
                     if (distance < 100 && distance > 10) {
                         const forceDirectionX = dx / distance;
                         const forceDirectionY = dy / distance;
-                        const force = currentBondStrength * (100 - distance);
+                        // La fuerza es inversamente proporcional a la distancia, atenuada por el 'currentBondStrength'
+                        const force = currentBondStrength * (100 - distance) * 0.001; // Ajuste de factor para evitar movimientos muy bruscos
 
+                        // Aplica la fuerza de atracción
                         this.vx += forceDirectionX * force;
                         this.vy += forceDirectionY * force;
+                    }
+                    
+                    // Empuje ligero para evitar que las partículas se superpongan (cercanía)
+                    if (distance < particleRadius * 2) {
+                        const pushForce = 0.5; // Fuerza de empuje
+                        this.vx -= dx * pushForce;
+                        this.vy -= dy * pushForce;
                     }
                 }
             }
 
             function initParticles(state) {
                 particles = [];
+                const padding = 20; // Espacio para que no se peguen a los bordes
                 for (let i = 0; i < particleCount; i++) {
                     let x, y;
                     if (state === 'solid') {
+                        // Coloca las partículas en una cuadrícula para simular la estructura cristalina
                         const cols = Math.floor(Math.sqrt(particleCount));
+                        const cellWidth = (canvas.width - 2 * padding) / cols;
+                        const cellHeight = (canvas.height - 2 * padding) / cols;
+                        
                         const row = Math.floor(i / cols);
                         const col = i % cols;
-                        x = (canvas.width / cols) * col + (canvas.width / cols) / 2;
-                        y = (canvas.height / cols) * row + (canvas.height / cols) / 2;
+                        
+                        x = padding + cellWidth * col + cellWidth / 2;
+                        y = padding + cellHeight * row + cellHeight / 2;
+                        
                     } else {
-                        x = Math.random() * canvas.width;
-                        y = Math.random() * canvas.height;
+                        // Posición aleatoria
+                        x = Math.random() * (canvas.width - 2 * padding) + padding;
+                        y = Math.random() * (canvas.height - 2 * padding) + padding;
                     }
                     particles.push(new Particle(x, y));
                 }
+                // Re-inicializa la velocidad con la nueva temperatura después del cambio de estado/posición
+                particles.forEach(p => {
+                    p.vx = (Math.random() - 0.5) * currentTemperature;
+                    p.vy = (Math.random() - 0.5) * currentTemperature;
+                });
             }
 
             function changeState(newState) {
@@ -630,56 +671,70 @@
                 const liquidBtn = document.getElementById('liquidBtn');
                 const gasBtn = document.getElementById('gasBtn');
 
+                // Remueve la clase 'active' de todos los botones
                 if (solidBtn) solidBtn.classList.remove('active');
                 if (liquidBtn) liquidBtn.classList.remove('active');
                 if (gasBtn) gasBtn.classList.remove('active');
+
                 if (newState === 'solid') {
                     if (solidBtn) solidBtn.classList.add('active');
                     infoText.innerHTML = "<b>Sólido (Hielo):</b> Las moléculas de agua están en una estructura cristalina fija, con movimiento vibratorio mínimo.";
-                    currentTemperature = 0.5;
-                    currentBondStrength = 0.5;
+                    currentTemperature = 0.5; // Baja velocidad / Baja temperatura
+                    currentBondStrength = 0.5; // Fuerte enlace
                 } else if (newState === 'liquid') {
                     if (liquidBtn) liquidBtn.classList.add('active');
                     infoText.innerHTML = "<b>Líquido (Agua):</b> Las moléculas se mueven libremente pero se mantienen cerca gracias a los enlaces de hidrógeno (cohesión).";
-                    currentTemperature = 1.5;
-                    currentBondStrength = 0.05;
+                    currentTemperature = 1.5; // Velocidad media
+                    currentBondStrength = 0.05; // Enlace medio/bajo
                 } else { // 'gas'
                     if (gasBtn) gasBtn.classList.add('active');
-                    infoText.innerHTML = "<b>Gaseoso (Vapor):</b> Las moléculas se mueven de forma rápida y caótica, con enlaces de hidrógeno rotos.";
-                    currentTemperature = 3.0;
-                    currentBondStrength = 0.01;
+                    infoText.innerHTML = "<b>Gaseoso (Vapor):</b> Las moléculas se mueven de forma rápida y caótica, con enlaces de hidrógeno rotos. Prácticamente sin interacción.";
+                    currentTemperature = 3.0; // Alta velocidad / Alta temperatura
+                    currentBondStrength = 0.01; // Enlace muy débil (casi nulo)
                 }
+                
+                // Actualiza los sliders a los valores preestablecidos
                 temperatureSlider.value = currentTemperature;
                 bondStrengthSlider.value = currentBondStrength;
+                
                 initParticles(newState);
             }
 
             function animate() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    p.draw();
-                });
-                if (currentState === 'solid') {
-                    particles.forEach(p => {
-                        p.vx = (Math.random() - 0.5) * currentTemperature;
-                        p.vy = (Math.random() - 0.5) * currentTemperature;
-                        p.update();
-                    });
-                } else if (currentState === 'liquid') {
-                    particles.forEach((p1, i) => {
-                        particles.slice(i + 1).forEach(p2 => {
+                
+                // Aplica los valores de los sliders en tiempo real
+                const speedMultiplier = parseFloat(temperatureSlider.value);
+                const attractionStrength = parseFloat(bondStrengthSlider.value);
+                
+                particles.forEach((p1, i) => {
+                    // Actualiza la velocidad base solo en líquido/gas
+                    if (currentState !== 'solid') {
+                        // Mantiene una velocidad base mínima y aplica el multiplicador del slider
+                        p1.vx = p1.vx * 0.995 + (Math.random() - 0.5) * 0.05 * speedMultiplier;
+                        p1.vy = p1.vy * 0.995 + (Math.random() - 0.5) * 0.05 * speedMultiplier;
+                    } else {
+                        // Simula vibración en sólido
+                        p1.vx = (Math.random() - 0.5) * speedMultiplier * 0.1;
+                        p1.vy = (Math.random() - 0.5) * speedMultiplier * 0.1;
+                    }
+
+                    // Aplica interacción si no es gas puro (o si la fuerza de enlace no es mínima)
+                    if (currentState !== 'gas' || attractionStrength > 0.02) {
+                         particles.slice(i + 1).forEach(p2 => {
+                            // Temporalmente usa el valor del slider para la fuerza de enlace
+                            const originalBondStrength = currentBondStrength;
+                            currentBondStrength = attractionStrength; 
                             p1.attract(p2);
                             p2.attract(p1);
+                            currentBondStrength = originalBondStrength; // Restaura si es necesario
                         });
-                        p1.update();
-                    });
-                } else { // 'gas'
-                    particles.forEach(p => {
-                        p.vx = p.vx * 0.99 + (Math.random() - 0.5) * 0.1 * currentTemperature;
-                        p.vy = p.vy * 0.99 + (Math.random() - 0.5) * 0.1 * currentTemperature;
-                        p.update();
-                    });
-                }
+                    }
+                    
+                    p1.update();
+                    p1.draw();
+                });
+                
                 requestAnimationFrame(animate);
             }
 
@@ -688,6 +743,7 @@
             document.getElementById('liquidBtn').addEventListener('click', () => changeState('liquid'));
             document.getElementById('gasBtn').addEventListener('click', () => changeState('gas'));
 
+            // Los sliders ahora solo actualizan los valores, la lógica de 'animate' los usa directamente.
             temperatureSlider.addEventListener('input', (e) => {
                 currentTemperature = parseFloat(e.target.value);
             });
@@ -696,7 +752,10 @@
                 currentBondStrength = parseFloat(e.target.value);
             });
 
+            // Iniciar la simulación en estado sólido
             changeState('solid');
+            
+            // Iniciar el loop de animación
             animate();
         });
     </script>
