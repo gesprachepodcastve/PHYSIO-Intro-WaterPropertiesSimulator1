@@ -17,6 +17,7 @@
             --canvas-border-light: #cbd5e1;
             --sidebar-bg-light: rgba(255, 255, 255, 0.9);
             --sidebar-shadow-light: rgba(0, 0, 0, 0.2);
+            --backdrop-filter: blur(10px);
         }
 
         body.dark-mode {
@@ -38,6 +39,7 @@
             transition: background-color 0.3s ease, color 0.3s ease;
             min-height: 100vh;
             margin: 0;
+            overflow-x: hidden;
         }
 
         .main-content {
@@ -47,6 +49,13 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            box-sizing: border-box;
+            transition: filter 0.3s ease-in-out;
+        }
+
+        /* Nuevo estilo para el desenfoque */
+        .main-content.blur-bg {
+            filter: blur(5px);
         }
 
         .container {
@@ -244,7 +253,7 @@
             height: 100%;
             width: 300px;
             background-color: var(--sidebar-bg-light);
-            backdrop-filter: blur(10px);
+            backdrop-filter: var(--backdrop-filter);
             box-shadow: 2px 0 10px var(--sidebar-shadow-light);
             transform: translateX(-100%);
             transition: transform 0.3s ease-in-out;
@@ -264,7 +273,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-shrink: 0; /* Evita que el encabezado se encoja */
+            flex-shrink: 0;
         }
         
         .sidebar-logo {
@@ -282,14 +291,13 @@
             color: var(--text-heading-light);
         }
 
-        /* CORRECCIÓN: Se añade overflow-y: auto para permitir el scroll en el menú. */
         .sidebar ul {
             list-style: none;
             padding: 0;
             margin: 0;
-            flex: 1; /* Permite que la lista crezca y ocupe el espacio disponible */
-            overflow-y: auto; /* Habilita el desplazamiento vertical */
-            padding-right: 15px; /* Evita que el contenido quede pegado a la barra de desplazamiento */
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 15px;
         }
 
         .sidebar li {
@@ -349,7 +357,7 @@
 
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
-            <img src="logo.png" alt="Logo de la compañía" class="sidebar-logo">
+            <img src="https://placehold.co/150x80/28539e/FFFFFF?text=Logo" alt="Logo de la compañía" class="sidebar-logo">
             <button id="closeSidebarBtn" class="close-btn">&times;</button>
         </div>
         <ul>
@@ -427,6 +435,7 @@
             const sidebar = document.getElementById('sidebar');
             const darkModeToggleBtn = document.getElementById('darkModeToggleBtn');
             const body = document.body;
+            const mainContent = document.getElementById('mainContent');
             
             let particles = [];
             const particleCount = 100;
@@ -476,10 +485,20 @@
             // Sidebar and Dark Mode functionality
             sidebarToggleBtn.addEventListener('click', () => {
                 sidebar.classList.add('open');
+                mainContent.classList.add('blur-bg');
             });
 
             closeSidebarBtn.addEventListener('click', () => {
                 sidebar.classList.remove('open');
+                mainContent.classList.remove('blur-bg');
+            });
+
+            // Cierra el menú si se hace clic fuera de él
+            mainContent.addEventListener('click', () => {
+                if (sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                    mainContent.classList.remove('blur-bg');
+                }
             });
 
             darkModeToggleBtn.addEventListener('click', () => {
@@ -596,7 +615,6 @@
 
             function changeState(newState) {
                 currentState = newState;
-                // CORRECCIÓN: Ahora se seleccionan los botones correctamente después de que existen en el DOM
                 const solidBtn = document.getElementById('solidBtn');
                 const liquidBtn = document.getElementById('liquidBtn');
                 const gasBtn = document.getElementById('gasBtn');
