@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronología de Fisiología y Neurociencia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .timeline-container {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: #cbd5e1;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            border-radius: 9999px;
+        }
+        .timeline-event {
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+            padding: 10px 40px;
+        }
+        .timeline-event.left {
+            left: 0;
+        }
+        .timeline-event.right {
+            left: 50%;
+        }
+        .timeline-event::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            right: -10px;
+            background-color: #fff;
+            border: 4px solid #4a90e2;
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .timeline-event.right::after {
+            left: -10px;
+        }
+        .timeline-card {
+            padding: 20px 30px;
+            background-color: #fff;
+            position: relative;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out;
+        }
+        .timeline-card:hover {
+            transform: translateY(-5px);
+        }
+        .timeline-event.right .timeline-card::after {
+            content: " ";
+            height: 0;
+            position: absolute;
+            top: 22px;
+            left: -15px;
+            border-width: 10px 15px 10px 0;
+            border-style: solid;
+            border-color: transparent #fff transparent transparent;
+        }
+        .timeline-event.left .timeline-card::after {
+            content: " ";
+            height: 0;
+            position: absolute;
+            top: 22px;
+            right: -15px;
+            border-width: 10px 0 10px 15px;
+            border-style: solid;
+            border-color: transparent transparent transparent #fff;
+        }
+        .text-blue-600 { color: #4a90e2; }
+        .text-green-600 { color: #2d942e; }
+        .text-orange-600 { color: #d97706; }
+        .text-purple-600 { color: #8B5CF6; }
+
+        /* Estilo para los tooltips */
+        .person-tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            font-weight: bold;
+            color: #1d4ed8;
+            border-bottom: 2px dotted #93c5fd;
+        }
+        .person-tooltip .tooltip-content {
+            visibility: hidden;
+            background-color: #374151;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px 15px;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            width: 200px;
+            line-height: 1.4;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .person-tooltip .tooltip-content::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #374151 transparent transparent transparent;
+        }
+        .person-tooltip:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @media screen and (max-width: 768px) {
+            .timeline-container::after {
+                left: 20px;
+            }
+            .timeline-event {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            .timeline-event.right {
+                left: 0%;
+            }
+            .timeline-event::after {
+                left: 10px;
+            }
+            .timeline-event.right::after {
+                left: 10px;
+            }
+            .timeline-event.left .timeline-card::after, .timeline-event.right .timeline-card::after {
+                border-width: 10px 15px 10px 0;
+                border-color: transparent #fff transparent transparent;
+                left: -15px;
+                right: auto;
+            }
+        }
+    </style>
+</head>
+<body class="p-6">
+
+    <!-- Encabezado -->
+    <header class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">Cronología de Fisiología y Neurociencia</h1>
+        <p class="text-xl text-gray-600">Hitos clave en el estudio del cuerpo y el cerebro</p>
+    </header>
+
+    <!-- Contenedor principal de la línea de tiempo -->
+    <div class="timeline-container">
+        
+        <!-- Hito: Galeno y la Fisiología Antigua (Physiology) -->
+        <div class="timeline-event left">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-green-600">Siglo II | Fisiología</h3>
+                <p class="text-gray-700">El médico griego <span class="person-tooltip">Galeno<span class="tooltip-content"><strong>129-216</strong><br>Sus escritos dominaron la medicina europea por más de 1.300 años.</span></span> es considerado el padre de la fisiología experimental. Sus teorías sobre los humores y los espíritus animales influyeron durante siglos.</p>
+            </div>
+        </div>
+
+        <!-- Hito: Andreas Vesalius y la anatomía moderna (Neuroscience) -->
+        <div class="timeline-event right">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-purple-600">1543 | Neurociencia</h3>
+                <p class="text-gray-700">Se publica *De humani corporis fabrica* de <span class="person-tooltip">Andreas Vesalius<span class="tooltip-content"><strong>1514-1564</strong><br>Médico y anatomista. Considerado el fundador de la anatomía humana moderna.</span></span>. Este trabajo revolucionó el estudio del cuerpo humano, incluyendo el cerebro, y corrigió muchos de los errores de Galeno.</p>
+            </div>
+        </div>
+        
+        <!-- Hito: William Harvey y la circulación sanguínea (Physiology) -->
+        <div class="timeline-event left">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-green-600">1628 | Fisiología</h3>
+                <p class="text-gray-700">El médico inglés <span class="person-tooltip">William Harvey<span class="tooltip-content"><strong>1578-1657</strong><br>Considerado el padre de la cardiología. Fue el primero en describir la circulación sanguínea.</span></span> publica *Exercitatio Anatomica de Motu Cordis et Sanguinis in Animalibus*, estableciendo la base para la fisiología moderna.</p>
+            </div>
+        </div>
+
+        <!-- Hito: Luigi Galvani y la electrofisiología (Neuroscience) -->
+        <div class="timeline-event right">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-purple-600">1786 | Neurociencia</h3>
+                <p class="text-gray-700">El científico italiano <span class="person-tooltip">Luigi Galvani<span class="tooltip-content"><strong>1737-1798</strong><br>Físico y médico. Descubrió la bioelectricidad, demostrando que los músculos y nervios generan electricidad.</span></span> demuestra que la electricidad puede estimular los nervios y los músculos, sentando las bases de la electrofisiología.</p>
+            </div>
+        </div>
+
+        <!-- Hito: Claude Bernard y la homeostasis (Physiology) -->
+        <div class="timeline-event left">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-green-600">1865 | Fisiología</h3>
+                <p class="text-gray-700">El fisiólogo francés <span class="person-tooltip">Claude Bernard<span class="tooltip-content"><strong>1813-1878</strong><br>Estableció el concepto de "milieu intérieur" (entorno interno), que es el pilar de la homeostasis.</span></span> introduce el concepto de "milieu intérieur", precursor de la homeostasis, para explicar la estabilidad de los sistemas biológicos.</p>
+            </div>
+        </div>
+
+        <!-- Hito: Ramón y Cajal y la doctrina de la neurona (Neuroscience) -->
+        <div class="timeline-event right">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-purple-600">1888 | Neurociencia</h3>
+                <p class="text-gray-700">El neurocientífico español <span class="person-tooltip">Santiago Ramón y Cajal<span class="tooltip-content"><strong>1852-1934</strong><br>Padre de la neurociencia moderna. Demostró que las neuronas son unidades discretas.</span></span> formula la doctrina de la neurona, demostrando que el sistema nervioso está compuesto por células individuales. Ganó el Premio Nobel en 1906.</p>
+            </div>
+        </div>
+        
+        <!-- Hito: Pavlov y el reflejo condicionado (Physiology) -->
+        <div class="timeline-event left">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-green-600">1904 | Fisiología</h3>
+                <p class="text-gray-700">El fisiólogo ruso <span class="person-tooltip">Ivan Pavlov<span class="tooltip-content"><strong>1849-1936</strong><br>Ganador del Premio Nobel en 1904 por su investigación sobre los reflejos condicionados.</span></span> recibe el Premio Nobel por sus estudios sobre la digestión, que le llevaron a descubrir el concepto de "reflejo condicionado".</p>
+            </div>
+        </div>
+
+        <!-- Hito: Charles Sherrington y la sinapsis (Neuroscience) -->
+        <div class="timeline-event right">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-purple-600">1932 | Neurociencia</h3>
+                <p class="text-gray-700">El neurofisiólogo británico <span class="person-tooltip">Charles Sherrington<span class="tooltip-content"><strong>1857-1952</strong><br>Acuñó el término "sinapsis" para describir las conexiones entre neuronas. Ganó el Premio Nobel en 1932.</span></span> acuña el término "sinapsis" y describe la interacción entre neuronas, ganando un Premio Nobel por sus descubrimientos.</p>
+            </div>
+        </div>
+
+        <!-- Hito: Publicación del libro de Guyton (Physiology) -->
+        <div class="timeline-event left">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-green-600">1956 | Fisiología</h3>
+                <p class="text-gray-700">Se publica la primera edición de *Textbook of Medical Physiology* de <span class="person-tooltip">Arthur C. Guyton<span class="tooltip-content"><strong>1919-2003</strong><br>Fisiólogo estadounidense. Su libro se convirtió en uno de los más vendidos y leídos del mundo en el campo.</span></span>.</p>
+            </div>
+        </div>
+
+        <!-- Hito: Hodgkin y Huxley (Neuroscience) -->
+        <div class="timeline-event right">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-purple-600">1952 | Neurociencia</h3>
+                <p class="text-gray-700">Los biofísicos <span class="person-tooltip">Alan Hodgkin<span class="tooltip-content"><strong>1914-1998</strong><br>Ganador del Premio Nobel en 1963.</span></span> y <span class="person-tooltip">Andrew Huxley<span class="tooltip-content"><strong>1917-2012</strong><br>Ganador del Premio Nobel en 1963.</span></span> publican el modelo matemático del potencial de acción, un hito fundamental para la neurofisiología. 
+
+[Image of a diagram of an action potential]
+ </p>
+            </div>
+        </div>
+
+        <!-- Hito: Publicación del libro de Ganong (Physiology) -->
+        <div class="timeline-event left">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-green-600">1963 | Fisiología</h3>
+                <p class="text-gray-700">Publicación de la primera edición del *Review of Medical Physiology* de <span class="person-tooltip">William F. Ganong<span class="tooltip-content"><strong>1924-2007</strong><br>Reconocido fisiólogo y educador.</span></span>, un texto de referencia mundial.</p>
+            </div>
+        </div>
+
+        <!-- Hito: Descubrimiento de la plasticidad sináptica (Neuroscience) -->
+        <div class="timeline-event right">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-purple-600">1973 | Neurociencia</h3>
+                <p class="text-gray-700">La investigación de <span class="person-tooltip">Tim Bliss<span class="tooltip-content"><strong>1940-</strong><br>Neurocientífico.</span></span> y <span class="person-tooltip">Terje Lømo<span class="tooltip-content"><strong>1935-</strong><br>Neurocientífico.</span></span> sienta las bases para el concepto de plasticidad sináptica, demostrando la potenciación a largo plazo (LTP), un mecanismo clave del aprendizaje y la memoria.</p>
+            </div>
+        </div>
+        
+        <!-- Hito: Publicación del libro de Costanzo (Physiology) -->
+        <div class="timeline-event left">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-green-600">1995 | Fisiología</h3>
+                <p class="text-gray-700">Se publica la primera edición de *Physiology* de <span class="person-tooltip">Linda S. Costanzo<span class="tooltip-content"><strong>1947-</strong><br>Fisióloga y autora de libros de texto.</span></span>, un popular libro de texto diseñado para estudiantes de medicina. </p>
+            </div>
+        </div>
+
+        <!-- Hito: Publicación de los libros de Purves y Snell (Neuroscience) -->
+        <div class="timeline-event right">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-purple-600">1997 | Neurociencia</h3>
+                <p class="text-gray-700">Dos libros fundamentales para la neurociencia son publicados: *Neuroscience* de <span class="person-tooltip">Dale Purves<span class="tooltip-content">Neurocientífico, autor de múltiples libros de texto.</span></span> y colaboradores, y *Clinical Neuroanatomy* de <span class="person-tooltip">Richard S. Snell<span class="tooltip-content"><strong>1925-2018</strong><br>Médico y anatomista.</span></span>.</p>
+            </div>
+        </div>
+
+        <!-- Hito: Publicación del libro de Tresguerres (Physiology) -->
+        <div class="timeline-event left">
+            <div class="timeline-card">
+                <h3 class="font-bold text-lg mb-2 text-green-600">1999 | Fisiología</h3>
+                <p class="text-gray-700">Publicación del libro *Fisiología Humana* del equipo de <span class="person-tooltip">Jesús Tresguerres<span class="tooltip-content"><strong>1943-</strong><br>Médico español.</span></span>, un referente en el mundo hispanohablante.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
