@@ -359,6 +359,10 @@
             <li>
                 <button class="sidebar-btn" data-link-type="ime">BREVE HISTORIA DEL IME</button>
             </li>
+            <li>
+                <!-- Nuevo botón agregado -->
+                <button class="sidebar-btn" data-link-type="cohesion">FUERZAS DE COHESIÓN | Simulador</button>
+            </li>
         </ul>
     </div>
 
@@ -494,6 +498,8 @@
                         url = 'tlphysio.html'; // Se abre el archivo tlphysio.html
                     } else if (linkType === 'ime') {
                         url = 'tlime.html'; // Se abre el archivo tlime.html
+                    } else if (linkType === 'cohesion') {
+                        url = 'capilaridad.html'; // El nuevo enlace para el simulador de cohesión
                     }
 
                     if (url) {
