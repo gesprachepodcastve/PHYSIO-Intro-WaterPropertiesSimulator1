@@ -383,7 +383,10 @@
                 <button class="sidebar-btn" data-link-type="adhesion">FUERZAS DE ADHESIÓN | Simulador</button>
             </li>
             <li>
-                <button class="sidebar-btn" data-link-type="watermol">WaterMol | Simulator</button>
+                <button class="sidebar-btn" data-link-type="watermol">WaterMol | Simulador</button>
+            </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="liqcorp">Liquidos Corporales | Simulador</button>
             </li>
         </ul>
     </div>
@@ -539,6 +542,9 @@
                         url = 'adhesion.html'; // El nuevo enlace para el simulador de adhesión
                     } else if (linkType === 'watermol') {
                         url = 'watermol.html'; // Enlace para el simulador WaterMol
+                    }
+                    } else if (linkType === 'liqcorp') {
+                        url = 'liqcorp1.html'; // Enlace para el simulador Liquidos Corporales
                     }
 
                     if (url) {
