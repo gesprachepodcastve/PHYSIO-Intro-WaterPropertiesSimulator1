@@ -353,6 +353,12 @@
             <li>
                 <button class="sidebar-btn" data-link-type="quizz">QUIZZ</button>
             </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="fisiologia">BREVE HISTORIA DE LA FISIOLOGÍA</button>
+            </li>
+            <li>
+                <button class="sidebar-btn" data-link-type="ime">BREVE HISTORIA DEL IME</button>
+            </li>
         </ul>
     </div>
 
@@ -484,6 +490,10 @@
                         url = 'URL_DEL_VIDEO_YOUTUBE_AQUI'; // Reemplaza esto con el enlace de tu video de YouTube
                     } else if (linkType === 'quizz') {
                         url = 'URL_DEL_QUIZZ_AQUI'; // Reemplaza esto con el enlace de tu quizz
+                    } else if (linkType === 'fisiologia') {
+                        url = 'tlphysio.html'; // Se abre el archivo tlphysio.html
+                    } else if (linkType === 'ime') {
+                        url = 'tlime.html'; // Se abre el archivo tlime.html
                     }
 
                     if (url) {
