@@ -1,114 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHYSIO-PREPAS | Clase Introductoria</title>
-
-    <!-- Carga de Tailwind CSS para un diseño moderno y responsivo -->
+    <title>PHYSIO-PREPAS | Acceso</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
-        /* Fuentes */
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
-
         :root {
             --bg-color-light: #f0f4f8;
             --bg-container-light: #ffffff;
-            --text-color-light: #334155;
-            --text-heading-light: #1e293b;
-            --canvas-bg-light: #e2e8f0;
-            --canvas-border-light: #cbd5e1;
         }
-
         body {
             font-family: 'Open Sans', sans-serif;
-            background-color: var(--bg-color-light);
-            color: var(--text-color-light);
-            transition: background-color 0.3s, color 0.3s;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Estilos específicos del CANVAS y contenedores */
-        #app-container {
-            width: 100%;
-            max-width: 1024px;
-            display: flex;
-            flex-direction: column;
-            margin: 20px auto;
-            gap: 20px;
-        }
-
-        #canvas-container {
-            width: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-            border: 1px solid var(--canvas-border-light);
-            background-color: var(--canvas-bg-light);
-        }
-
-        canvas {
-            display: block;
-            width: 100%;
-            height: 400px; 
-        }
-
-        #controls {
-            background-color: var(--bg-container-light);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
-            display: grid;
-            gap: 15px;
-            grid-template-columns: repeat(1, 1fr);
-        }
-
-        @media (min-width: 768px) {
-            #controls {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        /* Elementos de control */
-        .control-group h3 {
-            color: var(--text-heading-light);
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .control-buttons button {
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.2s;
-            min-width: 80px;
-        }
-
-        .control-buttons button.active {
-            background-color: #1d4ed8; /* blue-700 */
-        }
-        
-        /* --- AUTH SCREEN STYLES --- */
-        #auth-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             background-color: var(--bg-color-light);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
-            transition: opacity 0.3s, visibility 0.3s;
+            min-height: 100vh;
         }
-
         .auth-card {
             background-color: var(--bg-container-light);
             padding: 30px;
@@ -117,7 +27,6 @@
             max-width: 400px;
             width: 90%;
         }
-
         .input-field {
             width: 100%;
             padding: 12px;
@@ -126,28 +35,17 @@
             margin-top: 5px;
             margin-bottom: 15px;
         }
-
         .auth-button {
             width: 100%;
             padding: 12px;
             border-radius: 8px;
             font-weight: 700;
         }
-
-        /* Estilos del menú desplegable simulado */
-        .dropdown:hover .dropdown-menu {
-            display: block;
-        }
-        .dropdown-menu {
-            display: none;
-        }
     </style>
 </head>
-
 <body>
-    
-    <!-- PANTALLA DE AUTENTICACIÓN (Se muestra si el usuario no ha iniciado sesión) -->
-    <div id="auth-screen" class="hidden">
+
+    <div id="auth-screen"> 
         <div class="auth-card">
             <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Acceso de Estudiantes</h2>
             
@@ -178,117 +76,13 @@
         </div>
     </div>
 
-    <!-- CONTENIDO PRINCIPAL DE LA SIMULACIÓN (Oculto hasta la autenticación) -->
-    <div id="simulation-app" class="hidden w-full max-w-4xl mx-auto">
-        
-        <header class="w-full max-w-4xl mx-auto py-4">
-            <!-- Barra de Navegación/Encabezado con Menú y Perfil -->
-            <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-md">
-                
-                <!-- 1. Menú Desplegable (Simulado) -->
-                <div class="relative dropdown mb-4 sm:mb-0">
-                    <button class="flex items-center space-x-2 p-2 bg-blue-100 rounded-lg hover:bg-blue-200 transition">
-                        <!-- Icono de Menú SVG (Hamburger) -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                        <span class="font-semibold text-blue-800">Menú Principal</span>
-                    </button>
-
-                    <!-- Opciones del Menú (Aparece al hacer hover) -->
-                    <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50 border border-gray-100">
-                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Clase Introductoria</a>
-                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Material de Apoyo</a>
-                        <div class="border-t border-gray-100"></div>
-                        <!-- Botón de Logout en el menú -->
-                        <button id="logout-button-menu" class="w-full text-left block px-4 py-2 text-red-600 hover:bg-red-50">Cerrar Sesión</button>
-                    </div>
-                </div>
-                
-                <!-- 2. Perfil y Logout -->
-                <div id="profile-area" class="text-right flex items-center space-x-4">
-                    <!-- Mensaje de Bienvenida Personalizado -->
-                    <p class="text-sm font-semibold text-gray-700">
-                        Hola, <span id="current-user-id" class="font-mono text-base text-blue-600">Estudiante</span>
-                    </p>
-                    
-                    <!-- BOTÓN DE LOGOUT EN EL HEADER -->
-                    <button id="logout-button-header" class="text-sm bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-3 rounded-lg transition duration-150">
-                        Cerrar Sesión
-                    </button>
-                </div>
-            </div>
-            
-        </header>
-
-        <div id="app-container">
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">Simulación de Estados del Agua</h2>
-            
-            <!-- Canvas de la simulación -->
-            <div id="canvas-container">
-                <canvas id="waterSimulation"></canvas>
-            </div>
-
-            <!-- Controles -->
-            <div id="controls">
-                
-                <!-- 1. Controles de Estado -->
-                <div class="control-group">
-                    <h3 class="text-xl">Estado de la Materia</h3>
-                    <div id="state-buttons" class="control-buttons flex space-x-2">
-                        <button id="solidBtn" class="bg-blue-500 text-white">Sólido</button>
-                        <button id="liquidBtn" class="bg-blue-500 text-white">Líquido</button>
-                        <button id="gasBtn" class="bg-blue-500 text-white">Gaseoso</button>
-                    </div>
-                </div>
-
-                <!-- 2. Control de Temperatura -->
-                <div class="control-group">
-                    <h3 class="text-xl">Temperatura</h3>
-                    <input type="range" id="temperatureSlider" min="0.01" max="1.5" step="0.01" value="0.5">
-                    <div class="slider-label">
-                        <span>Baja</span>
-                        <span id="temperatureValue">0.50</span>
-                        <span>Alta</span>
-                    </div>
-                </div>
-
-                <!-- 3. Control de Fuerza de Enlace -->
-                <div class="control-group">
-                    <h3 class="text-xl">Fuerza de Enlace</h3>
-                    <input type="range" id="bondStrengthSlider" min="0.0" max="0.05" step="0.001" value="0.02">
-                    <div class="slider-label">
-                        <span>Débil</span>
-                        <span id="bondStrengthValue">0.020</span>
-                        <span>Fuerte</span>
-                    </div>
-                </div>
-                
-            </div>
-            
-            <!-- Footer con el botón de Cerrar Sesión (para accesibilidad) -->
-            <footer class="text-center text-sm py-4 text-gray-500">
-                <!-- Botón de Logout en el footer -->
-                <button id="logout-button" class="text-blue-600 hover:text-blue-800 font-medium">Cerrar Sesión (Alternativo)</button>
-                <p class="mt-2 text-xs">PHYSIO-PREPAS &copy; 2024. Todos los derechos reservados.</p>
-            </footer>
-        </div>
-    </div>
-
-
     <script type="module">
-        // Importaciones necesarias de Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
         
-        setLogLevel('Debug'); 
-
-        // --- 1. FIREBASE SETUP & AUTH LOGIC ---
-
-        // ** CONFIGURACIÓN DE FIREBASE ** (Reemplaza con tus datos reales de GitHub Pages)
+        // ** ⚠️ CONFIGURACIÓN DE FIREBASE ** (ACTUALICE ESTOS VALORES)
         const MY_FIREBASE_CONFIG = {
-            apiKey: "AIzaSyDuUX0xG6-JuAQUrHSMTRDPwyEPq5dwjm4", 
+            apiKey: "AIzaSyDuUX0xG6-JuAQUrHSMTRDPwyEPq5dwjm4", // <-- ¡Reemplace!
             authDomain: "physio-prepas.firebaseapp.com",
             projectId: "physio-prepas",
             storageBucket: "physio-prepas.firebasestorage.app",
@@ -297,35 +91,17 @@
         };
         // FIN DE ** CONFIGURACIÓN DE FIREBASE **
         
-        // Variables de entorno inyectadas por Canvas
-        const dynamicFirebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const app = initializeApp(MY_FIREBASE_CONFIG);
+        const auth = getAuth(app);
 
-        let app;
-        let auth;
-        let isSimulationRunning = false; // Bandera para evitar reiniciar la simulación
-
-        // Referencias a elementos del DOM de Autenticación
-        const authScreen = document.getElementById('auth-screen');
-        const simulationApp = document.getElementById('simulation-app');
+        // Referencias del DOM
         const authForm = document.getElementById('auth-form');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const mainAuthButton = document.getElementById('main-auth-button');
         const authErrorMessage = document.getElementById('auth-error-message');
         
-        // Botones de Logout
-        const logoutButtonFooter = document.getElementById('logout-button'); 
-        const logoutButtonHeader = document.getElementById('logout-button-header'); 
-        const logoutButtonMenu = document.getElementById('logout-button-menu'); 
-
-        const currentUserIdEl = document.getElementById('current-user-id');
-        
-        // Mapeo de errores de Firebase a mensajes en español (simplificado)
         const firebaseErrorMessages = {
-            'auth/invalid-email': 'El formato del email no es válido.',
-            'auth/user-not-found': 'Email no registrado. Regístrate usando el enlace de abajo.',
-            'auth/wrong-password': 'Contraseña incorrecta.',
             'auth/invalid-credential': 'Credenciales no válidas. Verifica tu email y contraseña.',
             'default': 'Ocurrió un error al iniciar sesión. Inténtalo de nuevo.'
         };
@@ -340,7 +116,7 @@
             authErrorMessage.classList.add('hidden');
         }
 
-        // Maneja el envío del formulario de autenticación (Solo Login)
+        // Listener para el formulario de Login
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             hideAuthError();
@@ -352,9 +128,7 @@
             mainAuthButton.textContent = 'Accediendo...';
 
             try {
-                // Iniciar sesión
                 await signInWithEmailAndPassword(auth, email, password);
-                // Si es exitoso, onAuthStateChanged manejará la transición de la UI
             } catch (error) {
                 console.error("Auth Error:", error);
                 showAuthError(error.code);
@@ -364,314 +138,13 @@
             }
         });
 
-        // Esta función ahora contiene el listener onAuthStateChanged
-        function setupAuthListener() {
-            // Listener principal del estado de autenticación
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    // USUARIO AUTENTICADO: Ocultar auth-screen y Mostrar la simulación
-                    authScreen.classList.add('hidden');
-                    simulationApp.classList.remove('hidden');
-                    
-                    // Mostrar saludo personalizado
-                    const shortUserId = user.uid.substring(0, 6);
-                    // FIX: Asegurar que user.email existe antes de llamar a split(). Si no, usa una versión abreviada del UID.
-                    const displayName = user.email ? user.email.split('@')[0] : `Usuario-${shortUserId}`; 
-                    currentUserIdEl.textContent = displayName;
-
-                    // Iniciar la simulación si no se está ejecutando
-                    if (!isSimulationRunning) {
-                        startSimulation();
-                        isSimulationRunning = true;
-                    }
-                } else {
-                    // USUARIO DESCONECTADO: Mostrar la pantalla de login
-                    authScreen.classList.remove('hidden');
-                    simulationApp.classList.add('hidden');
-                    isSimulationRunning = false; // Detener simulación si se implementa
-                    currentUserIdEl.textContent = 'Estudiante'; // Texto por defecto
-                }
-            });
-        }
-
-        // Función de cerrar sesión
-        async function handleLogout() {
-             try {
-                await signOut(auth);
-            } catch (error) {
-                console.error("Error al cerrar sesión:", error);
+        // Listener principal del estado de autenticación
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // REDIRECCIÓN CLAVE: Si el usuario está logueado, vamos a la página principal.
+                window.location.href = 'mainpage.html';
             }
-        }
-
-
-        function initFirebase() {
-            try {
-                // Determinar qué configuración usar: 
-                const configToUse = Object.keys(dynamicFirebaseConfig).length > 0
-                    ? dynamicFirebaseConfig
-                    : MY_FIREBASE_CONFIG;
-
-                if (Object.keys(configToUse).length === 0 || configToUse.apiKey === "AIzaSyDuUX0xG6-JuAQUrHSMTRDPwyEPq5dwjm4") {
-                    // Si la configuración es de placeholder o está vacía, forzamos la visualización del login
-                    authScreen.classList.remove('hidden');
-                    return; 
-                }
-                
-                // Inicializar Firebase
-                app = initializeApp(configToUse);
-                auth = getAuth(app);
-                    
-                // Si hay un token inicial, intentamos iniciar sesión con él.
-                if (initialAuthToken) {
-                    signInWithCustomToken(auth, initialAuthToken).catch(e => {
-                        console.error("Fallo al autenticar con token inicial:", e);
-                        authScreen.classList.remove('hidden'); // Mostrar login si falla
-                    }).finally(setupAuthListener); // Siempre configuramos el listener después del intento
-                } else {
-                    // Si no hay token, solo configuramos el listener
-                    setupAuthListener(); 
-                }
-            } catch (error) {
-                console.error("Error al inicializar Firebase:", error);
-                document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Error fatal al iniciar Firebase: ${error.message}</div>`;
-            }
-        }
-
-        // --- 2. PHYSICS SIMULATION LOGIC (CÓDIGO ORIGINAL DE SIMULACIÓN) ---
-        
-        let canvas, ctx;
-        let particles = [];
-        let numParticles = 200;
-        let currentState = 'solid';
-
-        let currentTemperature = 0.5; // (0.01 a 1.5)
-        let currentBondStrength = 0.02; // (0.0 a 0.05)
-        let repulsionDistance = 30; // Distancia a la que empieza la repulsión
-
-        // Elementos del DOM de la simulación
-        const temperatureSlider = document.getElementById('temperatureSlider');
-        const bondStrengthSlider = document.getElementById('bondStrengthSlider');
-        const temperatureValueEl = document.getElementById('temperatureValue');
-        const bondStrengthValueEl = document.getElementById('bondStrengthValue');
-        const stateButtons = document.getElementById('state-buttons');
-
-        class Particle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                let angle = Math.random() * Math.PI * 2;
-                let speed = Math.random() * currentTemperature * 2;
-                this.vx = Math.cos(angle) * speed;
-                this.vy = Math.sin(angle) * speed;
-                this.radius = 3;
-                this.color = '#3b82f6';
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-
-            attract(other, strength) {
-                const dx = other.x - this.x;
-                const dy = other.y - this.y;
-                const distSq = dx * dx + dy * dy;
-                const dist = Math.sqrt(distSq);
-
-                if (dist > 0) {
-                    let force;
-                    
-                    if (currentState === 'solid' || currentState === 'liquid') {
-                        force = strength / distSq;
-                        
-                        // Repeler si están demasiado cerca
-                        if (dist < repulsionDistance) {
-                            force -= (repulsionDistance - dist) * 0.001;
-                        }
-                    } else { // Gaseoso
-                        if (dist < repulsionDistance / 2) {
-                            force = -0.005 / dist;
-                        } else {
-                            return;
-                        }
-                    }
-
-                    const fx = force * (dx / dist);
-                    const fy = force * (dy / dist);
-
-                    this.vx += fx;
-                    this.vy += fy;
-                }
-            }
-
-            update() {
-                // Movimiento Browniano/Térmico aleatorio
-                this.vx += (Math.random() - 0.5) * currentTemperature * 0.1;
-                this.vy += (Math.random() - 0.5) * currentTemperature * 0.1;
-
-                this.x += this.vx;
-                this.y += this.vy;
-
-                // Fricción/Resistencia
-                this.vx *= 0.99;
-                this.vy *= 0.99;
-
-                // Rebotar en los límites del canvas
-                if (this.x - this.radius < 0) {
-                    this.x = this.radius;
-                    this.vx *= -0.9;
-                } else if (this.x + this.radius > canvas.width) {
-                    this.x = canvas.width - this.radius;
-                    this.vx *= -0.9;
-                }
-
-                if (this.y - this.radius < 0) {
-                    this.y = this.radius;
-                    this.vy *= -0.9;
-                } else if (this.y + this.radius > canvas.height) {
-                    this.y = canvas.height - this.radius;
-                    this.vy *= -0.9;
-                }
-            }
-        }
-
-        function populateParticles() {
-            particles = [];
-            const cols = 20;
-            const rows = numParticles / cols;
-            const spacing = Math.min(canvas.width, canvas.height) / cols;
-            const startX = (canvas.width - cols * spacing) / 2 + spacing / 2;
-            const startY = (canvas.height - rows * spacing) / 2 + spacing / 2;
-
-            for (let i = 0; i < numParticles; i++) {
-                let col = i % cols;
-                let row = Math.floor(i / cols);
-
-                let x = startX + col * spacing + (Math.random() - 0.5) * 5;
-                let y = startY + row * spacing + (Math.random() - 0.5) * 5;
-
-                particles.push(new Particle(x, y));
-            }
-        }
-
-        function changeState(newState) {
-            currentState = newState;
-
-            document.querySelectorAll('#state-buttons button').forEach(btn => {
-                btn.classList.remove('active');
-                btn.classList.add('bg-blue-500');
-            });
-
-            const activeBtn = document.getElementById(newState + 'Btn');
-            if (activeBtn) {
-                activeBtn.classList.remove('bg-blue-500');
-                activeBtn.classList.add('active', 'bg-blue-700');
-            }
-
-            if (newState === 'solid') {
-                currentTemperature = 0.1;
-                currentBondStrength = 0.04;
-                repulsionDistance = 30;
-                numParticles = 200;
-                populateParticles();
-            } else if (newState === 'liquid') {
-                currentTemperature = 0.5;
-                currentBondStrength = 0.02;
-                repulsionDistance = 15;
-            } else if (newState === 'gas') {
-                currentTemperature = 1.0;
-                currentBondStrength = 0.00;
-                repulsionDistance = 10;
-            }
-
-            // Sincronizar sliders y valores mostrados
-            temperatureSlider.value = currentTemperature;
-            bondStrengthSlider.value = currentBondStrength;
-            temperatureValueEl.textContent = currentTemperature.toFixed(2);
-            bondStrengthValueEl.textContent = currentBondStrength.toFixed(3);
-        }
-
-
-        function animate() {
-            // Limpia el canvas
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg-light').trim();
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const attractionStrength = parseFloat(bondStrengthSlider.value);
-
-            particles.forEach((p1, i) => {
-                if (currentState !== 'gas') {
-                    for (let j = i + 1; j < particles.length; j++) {
-                        const p2 = particles[j];
-                        p1.attract(p2, attractionStrength);
-                        p2.attract(p1, attractionStrength); 
-                    }
-                }
-                
-                // Actualiza la temperatura para el movimiento browniano
-                currentTemperature = parseFloat(temperatureSlider.value);
-                
-                p1.update();
-                p1.draw();
-            });
-
-            requestAnimationFrame(animate);
-        }
-
-        // --- 3. FUNCIÓN DE INICIO PRINCIPAL ---
-
-        function setupCanvas() {
-            canvas = document.getElementById('waterSimulation');
-            ctx = canvas.getContext('2d');
-            
-            // Ajustar tamaño del canvas al contenedor
-            const container = document.getElementById('canvas-container');
-            const rect = container.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = 400; // Altura fija
-        }
-
-        function startSimulation() {
-            setupCanvas();
-            
-            // Agrega los EventListeners a los botones de estado del agua
-            document.getElementById('solidBtn').addEventListener('click', () => changeState('solid'));
-            document.getElementById('liquidBtn').addEventListener('click', () => changeState('liquid'));
-            document.getElementById('gasBtn').addEventListener('click', () => changeState('gas'));
-
-            // Los sliders solo actualizan los valores globales y muestran el valor
-            temperatureSlider.addEventListener('input', (e) => {
-                currentTemperature = parseFloat(e.target.value);
-                temperatureValueEl.textContent = currentTemperature.toFixed(2);
-            });
-
-            bondStrengthSlider.addEventListener('input', (e) => {
-                currentBondStrength = parseFloat(e.target.value);
-                bondStrengthValueEl.textContent = currentBondStrength.toFixed(3);
-            });
-            
-            // Inicializar la simulación en estado sólido
-            changeState('solid');
-            
-            // Iniciar el loop de animación
-            animate();
-        }
-
-        // --- 4. INICIALIZACIÓN GLOBAL ---
-
-        window.onload = function () {
-            // Asignación de evento para cerrar sesión
-             logoutButtonFooter.addEventListener('click', handleLogout);
-             logoutButtonHeader.addEventListener('click', handleLogout);
-             logoutButtonMenu.addEventListener('click', handleLogout);
-            
-            // 1. Inicializa Firebase (esto configura el listener onAuthStateChanged)
-            initFirebase();
-        };
-
+        });
     </script>
-
 </body>
 </html>
