@@ -1,1605 +1,717 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
 
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>PHYSIO-PREPAS | Clase Introductoria</title>
 
+    <!-- Carga de Tailwind CSS para un diseño moderno y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
-
         /* Fuentes */
-
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
 
-
-
         :root {
-
             --bg-color-light: #f0f4f8;
-
             --bg-container-light: #ffffff;
-
             --text-color-light: #334155;
-
             --text-heading-light: #1e293b;
-
             --canvas-bg-light: #e2e8f0;
-
             --canvas-border-light: #cbd5e1;
-
             --sidebar-bg-light: rgba(255, 255, 255, 0.9);
-
             --sidebar-shadow-light: rgba(0, 0, 0, 0.2);
-
             --backdrop-filter: blur(10px);
-
         }
-
-
 
         body.dark-mode {
-
             --bg-color-light: #1e293b;
-
             --bg-container-light: #334155;
-
             --text-color-light: #e2e8f0;
-
-            --text-heading-light: #f0f4f8;
-
-            --canvas-bg-light: #475569;
-
-            --canvas-border-light: #64748b;
-
+            --text-heading-light: #f8fafc;
+            --canvas-bg-light: #1e293b;
+            --canvas-border-light: #475569;
             --sidebar-bg-light: rgba(51, 65, 85, 0.9);
-
-            --sidebar-shadow-light: rgba(0, 0, 0, 0.5);
-
+            --sidebar-shadow-light: rgba(255, 255, 255, 0.1);
         }
-
-
 
         body {
-
             font-family: 'Open Sans', sans-serif;
-
             background-color: var(--bg-color-light);
-
             color: var(--text-color-light);
-
-            display: flex;
-
-            transition: background-color 0.3s ease, color 0.3s ease;
-
-            min-height: 100vh;
-
-            margin: 0;
-
+            transition: background-color 0.3s, color 0.3s;
             overflow-x: hidden;
-
-        }
-
-
-
-        .main-content {
-
-            flex-grow: 1;
-
+            min-height: 100vh;
             display: flex;
-
             flex-direction: column;
-
             align-items: center;
-
-            justify-content: center;
-
-            padding: 20px;
-
-            box-sizing: border-box;
-
-            transition: filter 0.3s ease-in-out;
-
         }
 
-
-
-        .main-content.blur-bg {
-
-            filter: blur(5px);
-
-        }
-
-
-
-        .container {
-
-            background-color: var(--bg-container-light);
-
-            border-radius: 1rem;
-
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-
-            padding: 2rem;
-
-            max-width: 900px;
-
+        /* Estilos específicos del CANVAS y contenedores */
+        #app-container {
             width: 100%;
-
+            max-width: 1024px;
             display: flex;
-
             flex-direction: column;
-
-            align-items: center;
-
-            gap: 1.5rem;
-
-            box-sizing: border-box;
-
+            margin: 20px auto;
+            gap: 20px;
         }
 
-
-
-        h1 {
-
-            font-family: 'Open Sans', sans-serif; /* Cambiado a Open Sans para consistencia */
-
-            color: var(--text-heading-light);
-
-            font-size: 2rem;
-
-            font-weight: 700;
-
-            text-align: center;
-
-            margin-bottom: 0.5rem;
-
-            transition: color 0.3s ease;
-
+        #canvas-container {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--canvas-border-light);
+            background-color: var(--canvas-bg-light);
         }
-
-
-
-        p {
-
-            color: var(--text-color-light);
-
-            text-align: center;
-
-            margin-top: 0;
-
-            max-width: 600px;
-
-            transition: color 0.3s ease;
-
-        }
-
-
 
         canvas {
-
-            background-color: var(--canvas-bg-light);
-
-            border-radius: 0.75rem;
-
-            border: 2px solid var(--canvas-border-light);
-
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-
+            display: block;
             width: 100%;
-
-            max-width: 800px;
-
-            height: 500px;
-
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-
+            height: 400px; /* Altura por defecto, se ajustará en JS si es necesario */
         }
 
-
-
-        .controls {
-
-            display: flex;
-
-            flex-wrap: wrap;
-
-            justify-content: center;
-
-            gap: 1rem;
-
-            margin-top: 1rem;
-
+        #controls {
+            background-color: var(--bg-container-light);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+            display: grid;
+            gap: 15px;
+            grid-template-columns: repeat(1, 1fr);
         }
 
-
-
-        .control-group {
-
-            display: flex;
-
-            flex-direction: column;
-
-            align-items: center;
-
-            gap: 0.5rem;
-
-            width: 180px; /* Ancho fijo para sliders */
-
-        }
-
-
-
-        .control-group label {
-
-            font-weight: 600;
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 0.25rem;
-
-            cursor: default;
-
-            text-align: center;
-
-        }
-
-
-
-        .control-group input[type="range"] {
-
-            width: 100%;
-
-        }
-
-
-
-        .buttons {
-
-            display: flex;
-
-            flex-wrap: wrap;
-
-            gap: 0.75rem;
-
-            justify-content: center;
-
-        }
-
-
-
-        button, .toggle-btn, .sidebar-btn {
-
-            background-color: #1e293b;
-
-            color: #fff;
-
-            border: 2px solid #3b82f6;
-
-            padding: 0.75rem 1.5rem;
-
-            border-radius: 0.5rem;
-
-            font-size: 1rem;
-
-            font-weight: 600;
-
-            cursor: pointer;
-
-            position: relative;
-
-            overflow: hidden;
-
-            transition: all 0.3s ease-in-out;
-
-            box-shadow: 0 0 5px #3b82f6;
-
-        }
-
-
-
-        button:hover, .toggle-btn:hover, .sidebar-btn:hover {
-
-            color: #fff;
-
-            background-color: #3b82f6;
-
-            border-color: #2563eb;
-
-            box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
-
-            transform: scale(1.05);
-
-        }
-
-
-
-        button.active {
-
-            color: #fff;
-
-            background-color: #3b82f6;
-
-            border-color: #2563eb;
-
-            box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
-
-            animation: neon-pulse 1.5s ease-in-out infinite alternate;
-
-        }
-
-
-
-        @keyframes neon-pulse {
-
-            from {
-
-                box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
-
+        @media (min-width: 768px) {
+            #controls {
+                grid-template-columns: repeat(3, 1fr);
             }
-
-            to {
-
-                box-shadow: 0 0 20px #fff, 0 0 40px #3b82f6, 0 0 60px #3b82f6, 0 0 100px #3b82f6;
-
-            }
-
         }
 
-
-
-        .info-box {
-
-            background-color: var(--canvas-bg-light);
-
-            border: 1px solid var(--canvas-border-light);
-
-            padding: 1rem;
-
-            border-radius: 0.75rem;
-
-            margin-top: 1rem;
-
-            width: 100%;
-
-            max-width: 800px;
-
-            box-sizing: border-box;
-
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-
-        }
-
-
-
-        .footer {
-
-            margin-top: 1.5rem;
-
-            padding-top: 1.5rem;
-
-            border-top: 1px solid var(--canvas-border-light);
-
-            text-align: center;
-
-            width: 100%;
-
-            display: flex;
-
-            justify-content: center;
-
-            align-items: center;
-
-            flex-direction: column;
-
-            gap: 0.5rem;
-
-            transition: border-color 0.3s ease;
-
-        }
-
-
-
-        .footer p {
-
-            margin: 0;
-
-            color: var(--text-color-light);
-
-            min-height: 1.5em;
-
-            transition: color 0.3s ease;
-
-        }
-
-
-
-        #footerTypingText {
-
-            overflow: hidden;
-
-            white-space: nowrap;
-
-            border-right: 2px solid transparent;
-
-            font-weight: 600;
-
-        }
-
-
-
-        .footer a {
-
-            color: #fff;
-
-            background-color: #1e293b;
-
-            border: 2px solid #3b82f6;
-
-            padding: 0.5rem 1rem;
-
-            border-radius: 0.5rem;
-
-            text-decoration: none;
-
-            font-weight: 600;
-
-            transition: all 0.3s ease-in-out;
-
-            box-shadow: 0 0 5px #3b82f6;
-
-        }
-
-
-
-        .footer a:hover {
-
-            color: #fff;
-
-            background-color: #3b82f6;
-
-            border-color: #2563eb;
-
-            box-shadow: 0 0 10px #fff, 0 0 20px #3b82f6, 0 0 40px #3b82f6, 0 0 80px #3b82f6;
-
-            transform: scale(1.05);
-
-        }
-
-
-
-        /* Sidebar styles */
-
-        .sidebar {
-
-            position: fixed;
-
-            top: 0;
-
-            left: 0;
-
-            height: 100%;
-
-            width: 300px;
-
-            background-color: var(--sidebar-bg-light);
-
-            backdrop-filter: var(--backdrop-filter);
-
-            box-shadow: 2px 0 10px var(--sidebar-shadow-light);
-
-            transform: translateX(-100%);
-
-            transition: transform 0.3s ease-in-out;
-
-            z-index: 100;
-
-            padding: 2rem;
-
-            box-sizing: border-box;
-
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 1rem;
-
-        }
-
-
-
-        .sidebar.open {
-
-            transform: translateX(0);
-
-        }
-
-
-
-        .sidebar-header {
-
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-
-            flex-shrink: 0;
-
-            margin-bottom: 1rem;
-
-        }
-
-
-
-        /* ESTILO MODIFICADO PARA ELIMINAR EL LOGO Y USAR UN TÍTULO DE TEXTO */
-
-        .sidebar-logo {
-
-            max-width: 180px;
-
-            height: 60px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            border-radius: 0.5rem;
-
-            /* Estilo para el texto */
-
+        /* Elementos de control */
+        .control-group h3 {
+            color: var(--text-heading-light);
             font-weight: 700;
-
-            font-size: 1.5rem;
-
-            color: var(--text-heading-light);
-
+            margin-bottom: 10px;
         }
 
-        /* FIN ESTILO MODIFICADO */
-
-
-
-        .sidebar-header .close-btn {
-
-            background: none;
-
-            border: none;
-
-            font-size: 1.5rem;
-
-            cursor: pointer;
-
-            color: var(--text-heading-light);
-
-            padding: 0.5rem;
-
-            border-radius: 50%;
-
-            transition: background-color 0.3s;
-
+        .control-buttons button {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            min-width: 80px;
         }
 
-
-
-        .sidebar-header .close-btn:hover {
-
-            background-color: rgba(100, 116, 139, 0.2);
-
+        .control-buttons button:not(.active):hover {
+            opacity: 0.8;
         }
 
-
-
-        .sidebar ul {
-
-            list-style: none;
-
-            padding: 0;
-
-            margin: 0;
-
-            flex: 1;
-
-            overflow-y: auto;
-
-            padding-right: 15px;
-
-        }
-
-
-
-        .sidebar li {
-
-            margin-bottom: 1rem;
-
-            text-align: center;
-
-        }
-
-
-
-        .sidebar-btn {
-
-            width: 100%;
-
-            white-space: normal;
-
-        }
-
-
-
-        .top-bar {
-
-            position: absolute;
-
-            top: 15px;
-
-            left: 15px;
-
-            z-index: 10;
-
+        .slider-label {
             display: flex;
-
-            gap: 10px;
-
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.875rem;
         }
 
-
-
-        .toggle-btn {
-
-            padding: 0.5rem 1rem;
-
-            font-size: 1rem;
-
-            line-height: 1;
-
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #cbd5e1;
+            border-radius: 5px;
         }
 
-
-
-        .toggle-btn svg {
-
-            width: 24px;
-
-            height: 24px;
-
-            stroke: #fff;
-
-            transition: stroke 0.3s ease;
-
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+            margin-top: -5px;
         }
 
-        
-
-        .toggle-btn:hover svg {
-
-            stroke: #fff; /* Se mantiene blanco al hacer hover en el modo neon */
-
+        /* --- AUTH SCREEN STYLES --- */
+        #auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.3s, visibility 0.3s;
+            /* Se cambia a 'relative' para que 'absolute bottom-0' funcione correctamente respecto a este div */
+            position: relative; 
         }
 
-
-
-        @media (max-width: 768px) {
-
-            .container {
-
-                padding: 1rem;
-
-            }
-
-            h1 {
-
-                font-size: 1.5rem;
-
-            }
-
-            p {
-
-                font-size: 0.9rem;
-
-            }
-
-            .controls {
-
-                flex-direction: column;
-
-                align-items: center;
-
-            }
-
-            .sidebar {
-
-                width: 250px;
-
-            }
-
+        .auth-card {
+            background-color: var(--bg-container-light);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 400px;
+            width: 90%;
         }
 
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            transition: background-color 0.2s;
+        }
     </style>
-
 </head>
 
 <body>
-
-    <div class="top-bar">
-
-        <button id="sidebarToggleBtn" class="toggle-btn">
-
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-
-            </svg>
-
-        </button>
-
-        <button id="darkModeToggleBtn" class="toggle-btn">🌙</button>
-
-    </div>
-
-
-
-    <div id="sidebar" class="sidebar">
-
-        <div class="sidebar-header">
-
-                        <div class="sidebar-logo">Menu</div> 
-
-            <button id="closeSidebarBtn" class="close-btn">&times;</button>
-
-        </div>
-
-        <ul>
-
-            <li>
-
-                <button class="sidebar-btn" data-link-type="pdf">Descargar guía de la clase en PDF</button>
-
-            </li>
-
-            <li>
-
-                <button class="sidebar-btn" data-link-type="canva">Ver Versión Resumida pregrabada en CANVAS</button>
-
-            </li>
-
-            <li>
-
-                <button class="sidebar-btn" data-link-type="quizz">QUIZZ</button>
-
-            </li>
-
-            <li>
-
-                <button class="sidebar-btn" data-link-type="fisiologia">BREVE HISTORIA DE LA FISIOLOGÍA</button>
-
-            </li>
-
-            <li>
-
-                <button class="sidebar-btn" data-link-type="ime">BREVE HISTORIA DEL IME</button>
-
-            </li>
-
-            <li>
-
-                <button class="sidebar-btn" data-link-type="cohesion">FUERZAS DE ADHESION | Simulador</button>
-
-            </li>
-
-            <li>
-
-                <button class="sidebar-btn" data-link-type="adhesion">FUERZAS DE COHESION | Simulador</button>
-
-            </li>
-
-            <li>
-
-                <button class="sidebar-btn" data-link-type="watermol">WaterMol | Simulador</button>
-
-            </li>
-
-            <li>
-
-                <button class="sidebar-btn" data-link-type="liqcorp">Liquidos Corporales | Simulador</button>
-
-            </li>
-
-                        <li>
-
-                <button class="sidebar-btn" data-link-type="fase">Cambio de Fase | Simulador</button>
-
-            </li>
-
-        </ul>
-
-    </div>
-
-
-
-    <div class="main-content" id="mainContent">
-
-        <div class="container">
-
-            <h1>Simulador de Propiedades del Agua</h1>
-
-            <p>Observa cómo las moléculas de agua se comportan en diferentes estados. La animación muestra el movimiento y las interacciones para ilustrar la diferencia entre las fases sólida, líquida y gaseosa.</p>
-
-            <canvas id="waterCanvas"></canvas>
-
-            <div class="controls">
-
-                <div class="control-group">
-
-                    <label for="temperatureSlider">
-
-                        Temperatura (Velocidad)
-
-                    </label>
-
-                    <input type="range" id="temperatureSlider" min="0.1" max="3" value="0.5" step="0.1">
-
+    
+    <!-- PANTALLA DE AUTENTICACIÓN (Se oculta al iniciar sesión) -->
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Acceso de Estudiantes</h2>
+            
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email registrado</label>
+                    <input type="email" id="email" required class="input-field" placeholder="ejemplo@clase.com">
                 </div>
-
-                <div class="control-group">
-
-                    <label for="bondStrengthSlider">
-
-                        Fuerza de Enlace
-
-                    </label>
-
-                    <input type="range" id="bondStrengthSlider" min="0.00" max="0.5" value="0.5" step="0.01">
-
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <input type="password" id="password" required class="input-field" placeholder="Contraseña asignada">
                 </div>
+                
+                <button type="submit" id="main-auth-button" class="auth-button bg-blue-600 text-white hover:bg-blue-700">
+                    Acceder a la Simulación
+                </button>
 
-            </div>
-
-                        <div class="buttons">
-
-                <button id="solidBtn">Sólido</button>
-
-                <button id="liquidBtn">Líquido</button>
-
-                <button id="gasBtn">Gaseoso</button>
-
-            </div>
-
-            <div class="info-box">
-
-                <p id="infoText">
-
-                    <b>Sólido (Hielo):</b> Las moléculas de agua están en una estructura cristalina fija, con movimiento vibratorio mínimo.
-
+                <p id="auth-error-message" class="text-red-500 text-center text-sm mt-3 hidden">
+                    Mensaje de error
                 </p>
 
-            </div>
-
-            <div class="footer">
-
-                <p>
-
-                    <span id="footerTypingText"></span>
-
-                </p>
-
-                <a href="https://www.instagram.com/gesprache_vzla" target="_blank" rel="noopener noreferrer">@gesprache_vzla</a>
-
-            </div>
-
+                <div class="text-center pt-4">
+                    <!-- BOTÓN DE REGISTRO (AHORA ES UN ENLACE DIRECTO) -->
+                    <a href="https://forms.gle/yVMN8S28qtZn1ovJ8" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                        ¿Aún no tienes cuenta? Regístrate aquí.
+                    </a>
+                </div>
+            </form>
         </div>
 
+        <!-- Footer ajustado, se eliminó la referencia a PHYSIO-PREPAS -->
+        <footer class="text-center text-sm py-4 w-full absolute bottom-0 text-gray-500">
+            <!-- Párrafo eliminado -->
+        </footer>
     </div>
 
-    <script>
+    <!-- CONTENIDO PRINCIPAL DE LA SIMULACIÓN (Oculto hasta la autenticación) -->
+    <div id="simulation-app" class="hidden">
+        <header class="w-full max-w-4xl mx-auto py-6">
+            <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-2">PHYSIO-PREPAS</h1>
+            <p class="text-center text-lg text-gray-600">Simulación del Estado del Agua: Sólido, Líquido y Gaseoso</p>
+        </header>
 
-        document.addEventListener('DOMContentLoaded', (event) => {
+        <div id="app-container">
+            <!-- Canvas de la simulación -->
+            <div id="canvas-container">
+                <canvas id="waterSimulation"></canvas>
+            </div>
 
-            const canvas = document.getElementById('waterCanvas');
+            <!-- Controles -->
+            <div id="controls">
+                
+                <!-- 1. Controles de Estado -->
+                <div class="control-group">
+                    <h3 class="text-xl">Estado de la Materia</h3>
+                    <div id="state-buttons" class="control-buttons flex space-x-2">
+                        <button id="solidBtn" class="bg-blue-500 text-white active">Sólido</button>
+                        <button id="liquidBtn" class="bg-blue-500 text-white">Líquido</button>
+                        <button id="gasBtn" class="bg-blue-500 text-white">Gaseoso</button>
+                    </div>
+                </div>
 
-            const ctx = canvas.getContext('2d');
+                <!-- 2. Control de Temperatura -->
+                <div class="control-group">
+                    <h3 class="text-xl">Temperatura</h3>
+                    <input type="range" id="temperatureSlider" min="0.01" max="1.5" step="0.01" value="0.5">
+                    <div class="slider-label">
+                        <span>Baja</span>
+                        <span id="temperatureValue">0.5</span>
+                        <span>Alta</span>
+                    </div>
+                </div>
 
-            const temperatureSlider = document.getElementById('temperatureSlider');
-
-            const bondStrengthSlider = document.getElementById('bondStrengthSlider');
-
-            const infoText = document.getElementById('infoText');
-
-            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-
-            const closeSidebarBtn = document.getElementById('closeSidebarBtn');
-
-            const sidebar = document.getElementById('sidebar');
-
-            const darkModeToggleBtn = document.getElementById('darkModeToggleBtn');
-
-            const body = document.body;
-
-            const mainContent = document.getElementById('mainContent');
-
-
-
-            let particles = [];
-
-            const particleCount = 100;
-
-            const particleRadius = 4;
-
-            const particleColor = '#60a5fa';
-
-            let currentState = 'solid';
-
-
-
-            // Sincroniza los valores iniciales con los sliders
-
-            let currentTemperature = parseFloat(temperatureSlider.value);
-
-            let currentBondStrength = parseFloat(bondStrengthSlider.value);
-
-
-
-            // Footer typing animation variables
-
-            const footerTypingTextSpan = document.getElementById('footerTypingText');
-
-            const phrases = [
-
-                "MUCHAS AVENTURAS COMIENZAN CON UN 'SÍ'",
-
-                "DANOS UN POCO DE AMOR EN...",
-
-                "DÉJANOS TUS COMENTARIOS EN EL BOTÓN FIJADO"
-
-            ];
-
-            let phraseIndex = 0;
-
-            let charIndex = 0;
-
-            let isDeleting = false;
-
-            const typingSpeed = 70;
-
-            const deletingSpeed = 40;
-
-            const pauseTime = 1500;
+                <!-- 3. Control de Fuerza de Enlace -->
+                <div class="control-group">
+                    <h3 class="text-xl">Fuerza de Enlace</h3>
+                    <input type="range" id="bondStrengthSlider" min="0.0" max="0.05" step="0.001" value="0.02">
+                    <div class="slider-label">
+                        <span>Débil</span>
+                        <span id="bondStrengthValue">0.02</span>
+                        <span>Fuerte</span>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Footer ajustado, se eliminó la referencia a PHYSIO-PREPAS -->
+            <footer class="text-center text-sm py-4 text-gray-500">
+                <p>Usuario: <span id="current-user-id" class="font-mono text-xs">Cargando...</span> | <button id="logout-button" class="text-blue-600 hover:text-blue-800 font-medium">Cerrar Sesión</button></p>
+            </footer>
+        </div>
+    </div>
 
 
+    <script type="module">
+        // Importaciones necesarias de Firebase
+        // IMPORTANTE: Se actualizan las URLs a la versión 12.3.0
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+        // NOTA: Se ha eliminado 'createUserWithEmailAndPassword' ya que el registro es externo.
+        // Se mantiene la importación de setLogLevel para depuración, pero no es crucial aquí.
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+        
+        // setLogLevel('Debug'); // Descomentar para ver logs detallados
 
-            function typeWriterEffect() {
+        // --- 1. FIREBASE SETUP & AUTH LOGIC ---
 
-                const currentPhrase = phrases[phraseIndex];
+        // ** CONFIGURACIÓN DE FIREBASE PARA PUBLICACIÓN EN GITHUB PAGES **
+        // Se han insertado tus credenciales proporcionadas.
+        const MY_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyDuUX0xG6-JuAQUrHSMTRDPwyEPq5dwjm4", 
+            authDomain: "physio-prepas.firebaseapp.com",
+            projectId: "physio-prepas",
+            storageBucket: "physio-prepas.firebasestorage.app",
+            messagingSenderId: "937118566487",
+            appId: "1:937118566487:web:7183efb01604fd8d107b12"
+            // measurementId: "G-WPP8EQD36D" // No es necesario para la autenticación
+        };
+        // FIN DE ** CONFIGURACIÓN DE FIREBASE **
+        
+        // La aplicación intentará primero usar la configuración inyectada por el entorno
+        const dynamicAppId = typeof __app_id !== 'undefined' ? __app_id : MY_FIREBASE_CONFIG.appId || 'default-app-id';
+        const dynamicFirebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-                if (isDeleting) {
+        let app;
+        let auth;
 
-                    footerTypingTextSpan.textContent = currentPhrase.substring(0, charIndex--);
+        // Referencias a elementos del DOM de Autenticación
+        const authScreen = document.getElementById('auth-screen');
+        const simulationApp = document.getElementById('simulation-app');
+        const authForm = document.getElementById('auth-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const mainAuthButton = document.getElementById('main-auth-button');
+        const authErrorMessage = document.getElementById('auth-error-message');
+        const logoutButton = document.getElementById('logout-button');
+        const currentUserIdEl = document.getElementById('current-user-id');
+        
+        // Mapeo de errores de Firebase a mensajes en español (simplificado)
+        const firebaseErrorMessages = {
+            'auth/invalid-email': 'El formato del email no es válido.',
+            'auth/user-not-found': 'Email no registrado. Regístrate usando el enlace de abajo.',
+            'auth/wrong-password': 'Contraseña incorrecta.',
+            'auth/user-disabled': 'Tu cuenta ha sido deshabilitada. Contacta al administrador.',
+            'auth/invalid-credential': 'Credenciales no válidas. Verifica tu email y contraseña.',
+            'default': 'Ocurrió un error al iniciar sesión. Inténtalo de nuevo.'
+        };
 
-                } else {
+        function showAuthError(code) {
+            const message = firebaseErrorMessages[code] || firebaseErrorMessages['default'];
+            authErrorMessage.textContent = message;
+            authErrorMessage.classList.remove('hidden');
+        }
 
-                    footerTypingTextSpan.textContent = currentPhrase.substring(0, charIndex++);
+        function hideAuthError() {
+            authErrorMessage.classList.add('hidden');
+        }
 
-                }
+        // Maneja el envío del formulario de autenticación (Solo Login)
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAuthError();
+            
+            const email = emailInput.value;
+            const password = passwordInput.value;
 
-                if (!isDeleting && charIndex > currentPhrase.length) {
-
-                    isDeleting = true;
-
-                    setTimeout(typeWriterEffect, pauseTime);
-
-                } else if (isDeleting && charIndex < 0) {
-
-                    isDeleting = false;
-
-                    phraseIndex = (phraseIndex + 1) % phrases.length;
-
-                    charIndex = 0;
-
-                    setTimeout(typeWriterEffect, typingSpeed);
-
-                } else {
-
-                    const speed = isDeleting ? deletingSpeed : typingSpeed;
-
-                    setTimeout(typeWriterEffect, speed);
-
-                }
-
+            if (!email || !password) {
+                showAuthError('default');
+                return;
             }
 
-
-
-            typeWriterEffect();
-
-
-
-            // Sidebar and Dark Mode functionality
-
-            sidebarToggleBtn.addEventListener('click', () => {
-
-                sidebar.classList.add('open');
-
-                mainContent.classList.add('blur-bg');
-
-            });
-
-
-
-            closeSidebarBtn.addEventListener('click', () => {
-
-                sidebar.classList.remove('open');
-
-                mainContent.classList.remove('blur-bg');
-
-            });
-
-
-
-            // Cierra el menú si se hace clic fuera de él
-
-            mainContent.addEventListener('click', () => {
-
-                if (sidebar.classList.contains('open')) {
-
-                    sidebar.classList.remove('open');
-
-                    mainContent.classList.remove('blur-bg');
-
-                }
-
-            });
-
-
-
-            darkModeToggleBtn.addEventListener('click', () => {
-
-                body.classList.toggle('dark-mode');
-
-                if (body.classList.contains('dark-mode')) {
-
-                    darkModeToggleBtn.textContent = '☀️';
-
-                } else {
-
-                    darkModeToggleBtn.textContent = '🌙';
-
-                }
-
-            });
-
-
-
-            // Event listener for the new sidebar buttons
-
-            document.getElementById('sidebar').addEventListener('click', (e) => {
-
-                if (e.target.tagName === 'BUTTON' && e.target.classList.contains('sidebar-btn')) {
-
-                    const linkType = e.target.dataset.linkType;
-
-                    let url = '';
-
-
-
-                    // Enlaces definidos
-
-                    if (linkType === 'pdf') {
-
-                        // 🛑 MODIFICACIÓN APLICADA AQUÍ 🛑
-
-                        url = 'https://github.com/gesprachepodcastve/PHYSIO-Intro-WaterPropertiesSimulator1/raw/main/gpintroguia.pdf'; 
-
-                        // Se usa el enlace 'raw' de GitHub para forzar la descarga o apertura directa
-
-                    } else if (linkType === 'canva') {
-
-                        url = 'https://www.canva.com/design/DAG0CfruJuU/YdwXLmSV4-8gavS_8XlfsQ/view?utm_content=DAG0CfruJuU&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h9a5217fc85'; 
-
-                    } else if (linkType === 'quizz') {
-
-                        url = 'https://g.co/gemini/share/7f61451dfa4f'; 
-
-                    } else if (linkType === 'fisiologia') {
-
-                        url = 'tlphysio.html';
-
-                    } else if (linkType === 'ime') {
-
-                        url = 'tlime.html';
-
-                    } else if (linkType === 'cohesion') {
-
-                        url = 'capilaridad.html';
-
-                    } else if (linkType === 'adhesion') {
-
-                        url = 'adhesion.html';
-
-                    } else if (linkType === 'watermol') {
-
-                        url = 'watermol.html';
-
-                    } else if (linkType === 'liqcorp') {
-
-                        url = 'liqcorp1.html';
-
-                    } else if (linkType === 'fase') {
-
-                        url = 'temp.html';
-
-                    }
-
-
-
-                    if (url) {
-
-                        window.open(url, '_blank');
-
-                    }
-
-                }
-
-            });
-
-
-
-            function resizeCanvas() {
-
-                canvas.width = canvas.offsetWidth;
-
-                canvas.height = canvas.offsetHeight;
-
-                // Re-inicializa partículas en caso de cambio drástico de tamaño
-
-                if (particles.length > 0) {
-
-                    initParticles(currentState);
-
-                }
-
+            mainAuthButton.disabled = true;
+            mainAuthButton.textContent = 'Accediendo...';
+
+            try {
+                // Solo permitimos el inicio de sesión
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error("Auth Error:", error);
+                showAuthError(error.code);
+            } finally {
+                mainAuthButton.disabled = false;
+                mainAuthButton.textContent = 'Acceder a la Simulación';
             }
+        });
 
+        // Esta función ahora contiene el listener onAuthStateChanged
+        function setupAuthListener() {
+            // Listener principal del estado de autenticación
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // USUARIO AUTENTICADO: Mostrar la simulación
+                    authScreen.classList.add('hidden');
+                    simulationApp.classList.remove('hidden');
+                    // Usar substring para que el ID sea manejable y visible
+                    currentUserIdEl.textContent = user.uid.substring(0, 8) + '...'; 
 
-
-            window.addEventListener('resize', resizeCanvas);
-
-            resizeCanvas();
-
-
-
-            class Particle {
-
-                constructor(x, y) {
-
-                    this.x = x;
-
-                    this.y = y;
-
-                    // Almacena la posición inicial (punto de red) para el estado sólido
-
-                    this.originalX = x; 
-
-                    this.originalY = y;
-
-                    // Inicializa con velocidad aleatoria baja
-
-                    this.vx = (Math.random() - 0.5) * currentTemperature * 0.1;
-
-                    this.vy = (Math.random() - 0.5) * currentTemperature * 0.1;
-
-                }
-
-
-
-                draw() {
-
-                    ctx.beginPath();
-
-                    ctx.arc(this.x, this.y, particleRadius, 0, Math.PI * 2);
-
-                    ctx.fillStyle = particleColor;
-
-                    ctx.fill();
-
-                }
-
-
-
-                update() {
-
-                    this.x += this.vx;
-
-                    this.y += this.vy;
-
-
-
-                    // Colisión con los bordes del canvas (rebote)
-
-                    if (this.x - particleRadius < 0 || this.x + particleRadius > canvas.width) {
-
-                        this.vx *= -1;
-
-                        this.x = Math.max(particleRadius, Math.min(this.x, canvas.width - particleRadius));
-
+                    // Verificar si la simulación ya se ha iniciado
+                    if (!window.simulationStarted) {
+                        startSimulation();
+                        window.simulationStarted = true;
                     }
-
-                    if (this.y - particleRadius < 0 || this.y + particleRadius > canvas.height) {
-
-                        this.vy *= -1;
-
-                        this.y = Math.max(particleRadius, Math.min(this.y, canvas.height - particleRadius));
-
-                    }
-
+                } else {
+                    // USUARIO DESCONECTADO: Mostrar la pantalla de login
+                    authScreen.classList.remove('hidden');
+                    simulationApp.classList.add('hidden');
                 }
+            });
+        }
 
 
+        function initFirebase() {
+            try {
+                // Determinar qué configuración usar: 
+                // 1. La inyectada por el entorno (dynamicFirebaseConfig)
+                // 2. La hardcodeada por el usuario para GitHub Pages (MY_FIREBASE_CONFIG)
+                const configToUse = Object.keys(dynamicFirebaseConfig).length > 0
+                    ? dynamicFirebaseConfig
+                    : MY_FIREBASE_CONFIG;
 
-                attract(otherParticle, attractionStrength) {
-
-                    const dx = otherParticle.x - this.x;
-
-                    const dy = otherParticle.y - this.y;
-
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    const minDist = particleRadius * 2;
-
-                    const maxDist = 80; // Distancia máxima de interacción
-
-
-
-                    if (distance > minDist && distance < maxDist) {
-
-                        const forceDirectionX = dx / distance;
-
-                        const forceDirectionY = dy / distance;
-
-                        
-
-                        // Fuerza inversamente proporcional al cuadrado de la distancia, atenuada por el slider
-
-                        const force = attractionStrength * (1 / (distance * 0.1)) * 0.005;
-
-
-
-                        // Aplica la fuerza de atracción
-
-                        this.vx += forceDirectionX * force;
-
-                        this.vy += forceDirectionY * force;
-
-                    }
-
+                if (Object.keys(configToUse).length === 0 || configToUse.apiKey === "TU_API_KEY_AQUI" || configToUse.apiKey === "") {
+                    // Si la configuración aún es la de placeholder o está vacía, mostramos un error.
+                    console.error("ERROR: Configuración de Firebase faltante. Revisa MY_FIREBASE_CONFIG.");
+                    authScreen.classList.remove('hidden');
+                    authErrorMessage.textContent = 'ERROR FATAL: Debes configurar MY_FIREBASE_CONFIG con tus credenciales de Firebase.';
+                    authErrorMessage.classList.remove('hidden');
+                    return; 
+                }
+                
+                // Inicializar Firebase con la configuración elegida
+                app = initializeApp(configToUse);
+                auth = getAuth(app);
                     
-
-                    // Empuje ligero para evitar que las partículas se superpongan (cercanía)
-
-                    if (distance < minDist) {
-
-                        const pushFactor = 0.05 * (minDist - distance) / minDist; 
-
-                        this.vx -= dx * pushFactor;
-
-                        this.vy -= dy * pushFactor;
-
-                    }
-
+                if (initialAuthToken) {
+                    // Usar token de autenticación inicial si existe
+                    signInWithCustomToken(auth, initialAuthToken).catch(e => {
+                        console.error("Fallo al autenticar con token inicial:", e);
+                        authScreen.classList.remove('hidden');
+                    }).finally(setupAuthListener);
+                } else {
+                    // Continuar con el listener normal si no hay token inicial
+                    setupAuthListener(); 
                 }
+            } catch (error) {
+                console.error("Error al inicializar Firebase:", error);
+                console.error(`Error fatal al iniciar Firebase: ${error.message}`);
+                authScreen.innerHTML = `<p class="text-red-500 text-center">Error fatal: ${error.message}</p>`;
+            }
+        }
 
+
+        // --- 2. PHYSICS SIMULATION LOGIC (Envuelto en startSimulation) ---
+        
+        let canvas, ctx;
+        let particles = [];
+        let numParticles = 200;
+        let currentState = 'solid';
+
+        // Variables de control de la simulación
+        let currentTemperature = 0.5; // (0.01 a 1.5) Afecta la velocidad inicial y aleatoria
+        let currentBondStrength = 0.02; // (0.0 a 0.05) Afecta la fuerza de atracción/repulsión
+        let attractionStrength = 0.01;
+        let repulsionDistance = 30; // Distancia a la que empieza la repulsión
+
+        // Elementos del DOM de la simulación
+        const temperatureSlider = document.getElementById('temperatureSlider');
+        const bondStrengthSlider = document.getElementById('bondStrengthSlider');
+        const temperatureValueEl = document.getElementById('temperatureValue');
+        const bondStrengthValueEl = document.getElementById('bondStrengthValue');
+        const stateButtons = document.getElementById('state-buttons');
+
+        // Clase para representar una partícula de agua (Molécula)
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                // Velocidad inicial basada en la temperatura
+                let angle = Math.random() * Math.PI * 2;
+                let speed = Math.random() * currentTemperature * 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.radius = 3;
+                this.color = '#3b82f6'; // Azul
             }
 
-
-
-            function initParticles(state) {
-
-                particles = [];
-
-                const padding = 20; 
-
-                const availableWidth = canvas.width - 2 * padding;
-
-                const availableHeight = canvas.height - 2 * padding;
-
-
-
-                for (let i = 0; i < particleCount; i++) {
-
-                    let x, y;
-
-
-
-                    if (state === 'solid') {
-
-                        // Coloca las partículas en una cuadrícula fija (estructura cristalina)
-
-                        const cols = Math.floor(Math.sqrt(particleCount * availableWidth / availableHeight));
-
-                        const rows = Math.ceil(particleCount / cols);
-
-                        const cellWidth = availableWidth / cols;
-
-                        const cellHeight = availableHeight / rows;
-
-                        
-
-                        const row = Math.floor(i / cols);
-
-                        const col = i % cols;
-
-                        
-
-                        x = padding + cellWidth * col + cellWidth / 2;
-
-                        y = padding + cellHeight * row + cellHeight / 2;
-
-                        
-
-                    } else {
-
-                        // Posición aleatoria
-
-                        x = Math.random() * availableWidth + padding;
-
-                        y = Math.random() * availableHeight + padding;
-
-                    }
-
-                    particles.push(new Particle(x, y));
-
-                }
-
-                
-
-                // Re-inicializa la velocidad
-
-                particles.forEach(p => {
-
-                    // Velocidad aleatoria inicial basada en la temperatura actual
-
-                    p.vx = (Math.random() - 0.5) * currentTemperature * 0.2;
-
-                    p.vy = (Math.random() - 0.5) * currentTemperature * 0.2;
-
-                });
-
+            // Dibuja la partícula
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
             }
 
-
-
-            function changeState(newState) {
-
-                currentState = newState;
-
-                const solidBtn = document.getElementById('solidBtn');
-
-                const liquidBtn = document.getElementById('liquidBtn');
-
-                const gasBtn = document.getElementById('gasBtn');
-
-
-
-                // Remueve la clase 'active' de todos los botones
-
-                if (solidBtn) solidBtn.classList.remove('active');
-
-                if (liquidBtn) liquidBtn.classList.remove('active');
-
-                if (gasBtn) gasBtn.classList.remove('active');
-
-
-
-                if (newState === 'solid') {
-
-                    if (solidBtn) solidBtn.classList.add('active');
-
-                    infoText.innerHTML = "<b>Sólido (Hielo):</b> Las moléculas de agua están en una estructura cristalina fija, con movimiento vibratorio mínimo.";
-
-                    // Parámetros por defecto para Sólido: Baja T, Alta Cohesión
-
-                    currentTemperature = 0.5; 
-
-                    currentBondStrength = 0.5; 
-
-                } else if (newState === 'liquid') {
-
-                    if (liquidBtn) liquidBtn.classList.add('active');
-
-                    infoText.innerHTML = "<b>Líquido (Agua):</b> Las moléculas se mueven libremente, se deslizan y cambian de pareja, pero se mantienen cohesionadas.";
-
-                    // Parámetros por defecto para Líquido: Media T, Media Cohesión
-
-                    currentTemperature = 1.5; 
-
-                    currentBondStrength = 0.05; 
-
-                } else { // 'gas'
-
-                    if (gasBtn) gasBtn.classList.add('active');
-
-                    infoText.innerHTML = "<b>Gaseoso (Vapor):</b> Las moléculas se mueven de forma rápida y caótica, con enlaces de hidrógeno rotos. La cohesión es nula.";
-
-                    // Parámetros por defecto para Gaseoso: Alta T, Nula Cohesión
-
-                    currentTemperature = 3.0; 
-
-                    currentBondStrength = 0.00; 
-
-                }
-
-                
-
-                // Actualiza los sliders a los valores preestablecidos
-
-                temperatureSlider.value = currentTemperature;
-
-                bondStrengthSlider.value = currentBondStrength;
-
-                
-
-                // Re-dibuja las partículas
-
-                initParticles(newState);
-
-            }
-
-
-
-            function animate() {
-
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                
-
-                // Aplica los valores de los sliders en tiempo real
-
-                const speedMultiplier = parseFloat(temperatureSlider.value);
-
-                const attractionStrength = parseFloat(bondStrengthSlider.value);
-
-                
-
-                particles.forEach((p1, i) => {
-
-                    if (currentState === 'solid') {
-
-                        // 1. Fuerza de Restauración (muelle) al punto de red original
-
-                        const restoreStrength = attractionStrength * 0.005; // La cohesión (bondStrength) define qué tan fuerte es la red
-
-                        const dx_orig = p1.originalX - p1.x;
-
-                        const dy_orig = p1.originalY - p1.y;
-
-
-
-                        p1.vx += dx_orig * restoreStrength;
-
-                        p1.vy += dy_orig * restoreStrength;
-
-
-
-                        // 2. Amortiguación (Damping) para evitar oscilación infinita
-
-                        p1.vx *= 0.99;
-
-                        p1.vy *= 0.99;
-
-
-
-                        // 3. Vibración (Temperatura)
-
-                        p1.vx += (Math.random() - 0.5) * speedMultiplier * 0.05;
-
-                        p1.vy += (Math.random() - 0.5) * speedMultiplier * 0.05;
-
-
-
-                    } else { // Liquid or Gas
-
-                        // 1. Movimiento Browniano (Temperatura) y Damping
-
-                        p1.vx *= 0.995;
-
-                        p1.vy *= 0.995;
-
-
-
-                        // Agrega una pequeña fuerza aleatoria continua para movimiento perpetuo
-
-                        p1.vx += (Math.random() - 0.5) * speedMultiplier * 0.05;
-
-                        p1.vy += (Math.random() - 0.5) * speedMultiplier * 0.05;
-
+            // Aplica fuerzas de atracción o repulsión
+            attract(other, strength) {
+                const dx = other.x - this.x;
+                const dy = other.y - this.y;
+                const distSq = dx * dx + dy * dy;
+                const dist = Math.sqrt(distSq);
+
+                if (dist > 0) {
+                    let force;
+                    
+                    if (currentState === 'solid' || currentState === 'liquid') {
+                        // Fuerza de enlace (atracción) que es más fuerte en sólido
+                        force = strength / distSq;
                         
-
-                        // 2. Interacción entre partículas (Cohesión)
-
-                        if (attractionStrength > 0.01) {
-
-                            particles.slice(i + 1).forEach(p2 => {
-
-                                p1.attract(p2, attractionStrength);
-
-                                p2.attract(p1, attractionStrength); // Newton's Third Law
-
-                            });
-
+                        // Si están demasiado cerca, repeler (evitar superposición)
+                        if (dist < repulsionDistance) {
+                            force -= (repulsionDistance - dist) * 0.001;
                         }
-
+                    } else { // Gaseoso
+                        // Fuerza de atracción insignificante, solo repulsión por proximidad
+                        if (dist < repulsionDistance / 2) {
+                            force = -0.005 / dist;
+                        } else {
+                            return; // No hay fuerzas en la fase gaseosa
+                        }
                     }
 
-                    
+                    const fx = force * (dx / dist);
+                    const fy = force * (dy / dist);
 
-                    p1.update();
-
-                    p1.draw();
-
-                });
-
-                
-
-                requestAnimationFrame(animate);
-
+                    // Aplicar la fuerza (masa=1)
+                    this.vx += fx;
+                    this.vy += fy;
+                }
             }
 
+            // Actualiza la posición y maneja los límites
+            update() {
+                // Movimiento Browniano/Térmico aleatorio (aumenta con la temperatura)
+                this.vx += (Math.random() - 0.5) * currentTemperature * 0.1;
+                this.vy += (Math.random() - 0.5) * currentTemperature * 0.1;
 
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Fricción/Resistencia (disminuye la velocidad)
+                this.vx *= 0.99;
+                this.vy *= 0.99;
+
+                // Rebotar en los límites del canvas
+                if (this.x - this.radius < 0) {
+                    this.x = this.radius;
+                    this.vx *= -0.9; // Rebote
+                } else if (this.x + this.radius > canvas.width) {
+                    this.x = canvas.width - this.radius;
+                    this.vx *= -0.9;
+                }
+
+                if (this.y - this.radius < 0) {
+                    this.y = this.radius;
+                    this.vy *= -0.9;
+                } else if (this.y + this.radius > canvas.height) {
+                    this.y = canvas.height - this.radius;
+                    this.vy *= -0.9;
+                }
+            }
+        }
+
+        // Distribuye las partículas en el canvas
+        function populateParticles() {
+            particles = [];
+            const cols = 20;
+            const rows = numParticles / cols;
+            const spacing = Math.min(canvas.width, canvas.height) / cols;
+            const startX = (canvas.width - cols * spacing) / 2 + spacing / 2;
+            const startY = (canvas.height - rows * spacing) / 2 + spacing / 2;
+
+            for (let i = 0; i < numParticles; i++) {
+                let col = i % cols;
+                let row = Math.floor(i / cols);
+
+                let x = startX + col * spacing + (Math.random() - 0.5) * 5;
+                let y = startY + row * spacing + (Math.random() - 0.5) * 5;
+
+                particles.push(new Particle(x, y));
+            }
+        }
+
+        // Ajusta los parámetros de la simulación según el estado
+        function changeState(newState) {
+            currentState = newState;
+
+            // Remueve la clase 'active' de todos los botones
+            document.querySelectorAll('#state-buttons button').forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-700');
+                btn.classList.add('bg-blue-500');
+            });
+
+            // Aplica la clase 'active' al botón seleccionado
+            const activeBtn = document.getElementById(newState + 'Btn');
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-blue-500');
+                activeBtn.classList.add('active', 'bg-blue-700');
+            }
+
+            // Configuración de estado
+            if (newState === 'solid') {
+                // Sólido: Baja T°, Alta fuerza de enlace (F. Enlace)
+                currentTemperature = 0.1;
+                currentBondStrength = 0.04;
+                repulsionDistance = 30;
+                numParticles = 200;
+                populateParticles();
+            } else if (newState === 'liquid') {
+                // Líquido: T° moderada, F. Enlace moderada
+                currentTemperature = 0.5;
+                currentBondStrength = 0.02;
+                repulsionDistance = 15;
+            } else if (newState === 'gas') {
+                // Gaseoso: Alta T°, F. Enlace baja/cero
+                currentTemperature = 1.0;
+                currentBondStrength = 0.00;
+                repulsionDistance = 10;
+            }
+
+            // Sincronizar sliders
+            temperatureSlider.value = currentTemperature;
+            bondStrengthSlider.value = currentBondStrength;
+            temperatureValueEl.textContent = currentTemperature.toFixed(2);
+            bondStrengthValueEl.textContent = currentBondStrength.toFixed(3);
+        }
+
+
+        // Loop principal de la animación
+        function animate() {
+            // Limpia el canvas
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg-light').trim();
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Fuerza de atracción para esta iteración
+            attractionStrength = parseFloat(bondStrengthSlider.value);
+
+            // Iterar sobre las partículas
+            particles.forEach((p1, i) => {
+                // Solo calcula las fuerzas si no es gaseoso puro
+                if (currentState !== 'gas') {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const p2 = particles[j];
+
+                        // Aplica la fuerza de atracción/repulsión entre pares
+                        p1.attract(p2, attractionStrength);
+                        p2.attract(p1, attractionStrength); // Tercera Ley de Newton
+                    }
+                }
+                
+                // Actualiza la temperatura para el movimiento browniano
+                currentTemperature = parseFloat(temperatureSlider.value);
+                
+                p1.update();
+                p1.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // --- 3. FUNCIÓN DE INICIO PRINCIPAL ---
+
+        function setupCanvas() {
+            canvas = document.getElementById('waterSimulation');
+            ctx = canvas.getContext('2d');
+            
+            // Ajustar tamaño del canvas al contenedor
+            const container = document.getElementById('canvas-container');
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 400; // Altura fija por ahora
+        }
+
+        // Esta es la función que ejecuta la simulación (se llama solo después de la autenticación)
+        function startSimulation() {
+            setupCanvas();
+
+            // EventListeners para la simulación
 
             // Agrega los EventListeners a los botones de estado del agua
-
             document.getElementById('solidBtn').addEventListener('click', () => changeState('solid'));
-
             document.getElementById('liquidBtn').addEventListener('click', () => changeState('liquid'));
-
             document.getElementById('gasBtn').addEventListener('click', () => changeState('gas'));
 
-
-
-            // Los sliders solo actualizan los valores globales
-
+            // Los sliders solo actualizan los valores globales y muestran el valor
             temperatureSlider.addEventListener('input', (e) => {
-
                 currentTemperature = parseFloat(e.target.value);
-
+                temperatureValueEl.textContent = currentTemperature.toFixed(2);
             });
-
-
 
             bondStrengthSlider.addEventListener('input', (e) => {
-
                 currentBondStrength = parseFloat(e.target.value);
-
+                bondStrengthValueEl.textContent = currentBondStrength.toFixed(3);
             });
-
-
-
-            // Iniciar la simulación en estado sólido
-
-            changeState('solid');
-
             
-
+            // Inicializar la simulación en estado sólido
+            changeState('solid');
+            
             // Iniciar el loop de animación
-
             animate();
+        }
 
-        });
+        // --- 4. INICIALIZACIÓN GLOBAL ---
+
+        window.onload = function () {
+            // Asignación de evento para cerrar sesión debe ir aquí o después de obtener el botón
+             logoutButton.addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                } catch (error) {
+                    console.error("Error al cerrar sesión:", error);
+                    // Sustituir alert()
+                    console.error("No se pudo cerrar la sesión."); 
+                }
+            });
+            
+            // 1. Inicializa Firebase (esto configura el listener onAuthStateChanged)
+            initFirebase();
+        };
 
     </script>
 
 </body>
-
 </html>
