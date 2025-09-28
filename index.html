@@ -20,20 +20,6 @@
             --text-heading-light: #1e293b;
             --canvas-bg-light: #e2e8f0;
             --canvas-border-light: #cbd5e1;
-            --sidebar-bg-light: rgba(255, 255, 255, 0.9);
-            --sidebar-shadow-light: rgba(0, 0, 0, 0.2);
-            --backdrop-filter: blur(10px);
-        }
-
-        body.dark-mode {
-            --bg-color-light: #1e293b;
-            --bg-container-light: #334155;
-            --text-color-light: #e2e8f0;
-            --text-heading-light: #f8fafc;
-            --canvas-bg-light: #1e293b;
-            --canvas-border-light: #475569;
-            --sidebar-bg-light: rgba(51, 65, 85, 0.9);
-            --sidebar-shadow-light: rgba(255, 255, 255, 0.1);
         }
 
         body {
@@ -70,7 +56,7 @@
         canvas {
             display: block;
             width: 100%;
-            height: 400px; /* Altura por defecto, se ajustará en JS si es necesario */
+            height: 400px; 
         }
 
         #controls {
@@ -104,38 +90,10 @@
             min-width: 80px;
         }
 
-        .control-buttons button:not(.active):hover {
-            opacity: 0.8;
+        .control-buttons button.active {
+            background-color: #1d4ed8; /* blue-700 */
         }
-
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 0.875rem;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            -webkit-appearance: none;
-            appearance: none;
-            height: 8px;
-            background: #cbd5e1;
-            border-radius: 5px;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #3b82f6;
-            cursor: pointer;
-            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-            margin-top: -5px;
-        }
-
+        
         /* --- AUTH SCREEN STYLES --- */
         #auth-screen {
             position: fixed;
@@ -149,8 +107,6 @@
             align-items: center;
             z-index: 1000;
             transition: opacity 0.3s, visibility 0.3s;
-            /* Se cambia a 'relative' para que 'absolute bottom-0' funcione correctamente respecto a este div */
-            position: relative; 
         }
 
         .auth-card {
@@ -169,13 +125,6 @@
             border-radius: 8px;
             margin-top: 5px;
             margin-bottom: 15px;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        .input-field:focus {
-            border-color: #3b82f6;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
         .auth-button {
@@ -183,15 +132,21 @@
             padding: 12px;
             border-radius: 8px;
             font-weight: 700;
-            transition: background-color 0.2s;
+        }
+
+        /* Estilos del menú desplegable simulado */
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-menu {
+            display: none;
         }
     </style>
 </head>
 
 <body>
     
-    <!-- PANTALLA DE AUTENTICACIÓN (Se oculta al iniciar sesión) -->
-    <!-- NOTA: La clase 'hidden' en #auth-screen es manejada por JS -->
+    <!-- PANTALLA DE AUTENTICACIÓN (Se muestra si el usuario no ha iniciado sesión) -->
     <div id="auth-screen" class="hidden">
         <div class="auth-card">
             <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Acceso de Estudiantes</h2>
@@ -207,7 +162,7 @@
                 </div>
                 
                 <button type="submit" id="main-auth-button" class="auth-button bg-blue-600 text-white hover:bg-blue-700">
-                    Acceder a la Simulación
+                    Acceder a la Plataforma
                 </button>
 
                 <p id="auth-error-message" class="text-red-500 text-center text-sm mt-3 hidden">
@@ -215,35 +170,48 @@
                 </p>
 
                 <div class="text-center pt-4">
-                    <!-- BOTÓN DE REGISTRO (AHORA ES UN ENLACE DIRECTO) -->
                     <a href="https://forms.gle/yVMN8S28qtZn1ovJ8" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
                         ¿Aún no tienes cuenta? Regístrate aquí.
                     </a>
                 </div>
             </form>
         </div>
-
-        <!-- Footer ajustado, se eliminó la referencia a PHYSIO-PREPAS -->
-        <footer class="text-center text-sm py-4 w-full absolute bottom-0 text-gray-500">
-            <!-- Párrafo eliminado -->
-        </footer>
     </div>
 
     <!-- CONTENIDO PRINCIPAL DE LA SIMULACIÓN (Oculto hasta la autenticación) -->
     <div id="simulation-app" class="hidden w-full max-w-4xl mx-auto">
-        <header class="w-full max-w-4xl mx-auto py-6">
-            <!-- Encabezado y Perfil/Logout -->
-            <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-md mb-4">
-                <div class="text-left mb-2 sm:mb-0">
-                    <h1 class="text-2xl font-extrabold text-gray-800">PHYSIO-PREPAS</h1>
-                    <p class="text-sm text-gray-600">Simulación del Estado del Agua</p>
+        
+        <header class="w-full max-w-4xl mx-auto py-4">
+            <!-- Barra de Navegación/Encabezado con Menú y Perfil -->
+            <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-md">
+                
+                <!-- 1. Menú Desplegable (Simulado) -->
+                <div class="relative dropdown mb-4 sm:mb-0">
+                    <button class="flex items-center space-x-2 p-2 bg-blue-100 rounded-lg hover:bg-blue-200 transition">
+                        <!-- Icono de Menú SVG (Hamburger) -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <span class="font-semibold text-blue-800">Menú Principal</span>
+                    </button>
+
+                    <!-- Opciones del Menú (Aparece al hacer hover) -->
+                    <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50 border border-gray-100">
+                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Clase Introductoria</a>
+                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Material de Apoyo</a>
+                        <div class="border-t border-gray-100"></div>
+                        <!-- Botón de Logout en el menú -->
+                        <button id="logout-button-menu" class="w-full text-left block px-4 py-2 text-red-600 hover:bg-red-50">Cerrar Sesión</button>
+                    </div>
                 </div>
                 
-                <!-- APARTADO DE PERFIL DEL ESTUDIANTE -->
+                <!-- 2. Perfil y Logout -->
                 <div id="profile-area" class="text-right flex items-center space-x-4">
-                    <p class="text-sm text-gray-600">
-                        Estudiante: <span id="current-user-id" class="font-mono text-xs font-semibold text-blue-600">Cargando...</span>
+                    <!-- Mensaje de Bienvenida Personalizado -->
+                    <p class="text-sm font-semibold text-gray-700">
+                        Hola, <span id="current-user-id" class="font-mono text-base text-blue-600">Estudiante</span>
                     </p>
+                    
                     <!-- BOTÓN DE LOGOUT EN EL HEADER -->
                     <button id="logout-button-header" class="text-sm bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-3 rounded-lg transition duration-150">
                         Cerrar Sesión
@@ -254,6 +222,8 @@
         </header>
 
         <div id="app-container">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">Simulación de Estados del Agua</h2>
+            
             <!-- Canvas de la simulación -->
             <div id="canvas-container">
                 <canvas id="waterSimulation"></canvas>
@@ -266,7 +236,7 @@
                 <div class="control-group">
                     <h3 class="text-xl">Estado de la Materia</h3>
                     <div id="state-buttons" class="control-buttons flex space-x-2">
-                        <button id="solidBtn" class="bg-blue-500 text-white active">Sólido</button>
+                        <button id="solidBtn" class="bg-blue-500 text-white">Sólido</button>
                         <button id="liquidBtn" class="bg-blue-500 text-white">Líquido</button>
                         <button id="gasBtn" class="bg-blue-500 text-white">Gaseoso</button>
                     </div>
@@ -278,7 +248,7 @@
                     <input type="range" id="temperatureSlider" min="0.01" max="1.5" step="0.01" value="0.5">
                     <div class="slider-label">
                         <span>Baja</span>
-                        <span id="temperatureValue">0.5</span>
+                        <span id="temperatureValue">0.50</span>
                         <span>Alta</span>
                     </div>
                 </div>
@@ -289,7 +259,7 @@
                     <input type="range" id="bondStrengthSlider" min="0.0" max="0.05" step="0.001" value="0.02">
                     <div class="slider-label">
                         <span>Débil</span>
-                        <span id="bondStrengthValue">0.02</span>
+                        <span id="bondStrengthValue">0.020</span>
                         <span>Fuerte</span>
                     </div>
                 </div>
@@ -298,8 +268,9 @@
             
             <!-- Footer con el botón de Cerrar Sesión (para accesibilidad) -->
             <footer class="text-center text-sm py-4 text-gray-500">
-                 <!-- BOTÓN DE LOGOUT EN EL FOOTER (El ID 'logout-button' se usa en JS) -->
+                <!-- Botón de Logout en el footer -->
                 <button id="logout-button" class="text-blue-600 hover:text-blue-800 font-medium">Cerrar Sesión (Alternativo)</button>
+                <p class="mt-2 text-xs">PHYSIO-PREPAS &copy; 2024. Todos los derechos reservados.</p>
             </footer>
         </div>
     </div>
@@ -307,18 +278,15 @@
 
     <script type="module">
         // Importaciones necesarias de Firebase
-        // IMPORTANTE: Se actualizan las URLs a la versión 12.3.0
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-        // Se mantiene la importación de setLogLevel para depuración, pero no es crucial aquí.
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
         
-        setLogLevel('Debug'); // ACTIVADO TEMPORALMENTE para ver logs detallados en la consola
+        setLogLevel('Debug'); 
 
         // --- 1. FIREBASE SETUP & AUTH LOGIC ---
 
-        // ** CONFIGURACIÓN DE FIREBASE PARA PUBLICACIÓN EN GITHUB PAGES **
-        // Se han insertado tus credenciales proporcionadas.
+        // ** CONFIGURACIÓN DE FIREBASE ** (Reemplaza con tus datos reales de GitHub Pages)
         const MY_FIREBASE_CONFIG = {
             apiKey: "AIzaSyDuUX0xG6-JuAQUrHSMTRDPwyEPq5dwjm4", 
             authDomain: "physio-prepas.firebaseapp.com",
@@ -326,17 +294,16 @@
             storageBucket: "physio-prepas.firebasestorage.app",
             messagingSenderId: "937118566487",
             appId: "1:937118566487:web:7183efb01604fd8d107b12"
-            // measurementId: "G-WPP8EQD36D" // No es necesario para la autenticación
         };
         // FIN DE ** CONFIGURACIÓN DE FIREBASE **
         
-        // La aplicación intentará primero usar la configuración inyectada por el entorno
-        const dynamicAppId = typeof __app_id !== 'undefined' ? __app_id : MY_FIREBASE_CONFIG.appId || 'default-app-id';
+        // Variables de entorno inyectadas por Canvas
         const dynamicFirebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         let app;
         let auth;
+        let isSimulationRunning = false; // Bandera para evitar reiniciar la simulación
 
         // Referencias a elementos del DOM de Autenticación
         const authScreen = document.getElementById('auth-screen');
@@ -346,9 +313,12 @@
         const passwordInput = document.getElementById('password');
         const mainAuthButton = document.getElementById('main-auth-button');
         const authErrorMessage = document.getElementById('auth-error-message');
-        // Usamos los IDs del footer y del header para agregarles el mismo listener
+        
+        // Botones de Logout
         const logoutButtonFooter = document.getElementById('logout-button'); 
         const logoutButtonHeader = document.getElementById('logout-button-header'); 
+        const logoutButtonMenu = document.getElementById('logout-button-menu'); 
+
         const currentUserIdEl = document.getElementById('current-user-id');
         
         // Mapeo de errores de Firebase a mensajes en español (simplificado)
@@ -356,7 +326,6 @@
             'auth/invalid-email': 'El formato del email no es válido.',
             'auth/user-not-found': 'Email no registrado. Regístrate usando el enlace de abajo.',
             'auth/wrong-password': 'Contraseña incorrecta.',
-            'auth/user-disabled': 'Tu cuenta ha sido deshabilitada. Contacta al administrador.',
             'auth/invalid-credential': 'Credenciales no válidas. Verifica tu email y contraseña.',
             'default': 'Ocurrió un error al iniciar sesión. Inténtalo de nuevo.'
         };
@@ -379,23 +348,19 @@
             const email = emailInput.value;
             const password = passwordInput.value;
 
-            if (!email || !password) {
-                showAuthError('default');
-                return;
-            }
-
             mainAuthButton.disabled = true;
             mainAuthButton.textContent = 'Accediendo...';
 
             try {
-                // Solo permitimos el inicio de sesión
+                // Iniciar sesión
                 await signInWithEmailAndPassword(auth, email, password);
+                // Si es exitoso, onAuthStateChanged manejará la transición de la UI
             } catch (error) {
                 console.error("Auth Error:", error);
                 showAuthError(error.code);
             } finally {
                 mainAuthButton.disabled = false;
-                mainAuthButton.textContent = 'Acceder a la Simulación';
+                mainAuthButton.textContent = 'Acceder a la Plataforma';
             }
         });
 
@@ -408,19 +373,23 @@
                     authScreen.classList.add('hidden');
                     simulationApp.classList.remove('hidden');
                     
-                    // Mostrar los primeros 8 caracteres del UID para identificar al estudiante
-                    currentUserIdEl.textContent = user.uid.substring(0, 8) + '...'; 
+                    // Mostrar saludo personalizado
+                    const shortUserId = user.uid.substring(0, 6);
+                    // FIX: Asegurar que user.email existe antes de llamar a split(). Si no, usa una versión abreviada del UID.
+                    const displayName = user.email ? user.email.split('@')[0] : `Usuario-${shortUserId}`; 
+                    currentUserIdEl.textContent = displayName;
 
-                    // Verificar si la simulación ya se ha iniciado
-                    if (!window.simulationStarted) {
+                    // Iniciar la simulación si no se está ejecutando
+                    if (!isSimulationRunning) {
                         startSimulation();
-                        window.simulationStarted = true;
+                        isSimulationRunning = true;
                     }
                 } else {
                     // USUARIO DESCONECTADO: Mostrar la pantalla de login
                     authScreen.classList.remove('hidden');
                     simulationApp.classList.add('hidden');
-                    currentUserIdEl.textContent = 'Cargando...';
+                    isSimulationRunning = false; // Detener simulación si se implementa
+                    currentUserIdEl.textContent = 'Estudiante'; // Texto por defecto
                 }
             });
         }
@@ -431,8 +400,6 @@
                 await signOut(auth);
             } catch (error) {
                 console.error("Error al cerrar sesión:", error);
-                // Mostrar un mensaje en la consola en lugar de alert()
-                console.error("No se pudo cerrar la sesión. Inténtalo de nuevo."); 
             }
         }
 
@@ -444,50 +411,41 @@
                     ? dynamicFirebaseConfig
                     : MY_FIREBASE_CONFIG;
 
-                if (Object.keys(configToUse).length === 0 || configToUse.apiKey === "TU_API_KEY_AQUI" || configToUse.apiKey === "") {
-                    // Si la configuración es de placeholder o está vacía, mostramos un error en la UI.
-                    console.error("ERROR: Configuración de Firebase faltante. Revisa MY_FIREBASE_CONFIG.");
+                if (Object.keys(configToUse).length === 0 || configToUse.apiKey === "AIzaSyDuUX0xG6-JuAQUrHSMTRDPwyEPq5dwjm4") {
+                    // Si la configuración es de placeholder o está vacía, forzamos la visualización del login
                     authScreen.classList.remove('hidden');
-                    authErrorMessage.textContent = 'ERROR FATAL: Debes configurar MY_FIREBASE_CONFIG con tus credenciales de Firebase.';
-                    authErrorMessage.classList.remove('hidden');
                     return; 
                 }
                 
-                // Inicializar Firebase con la configuración elegida
+                // Inicializar Firebase
                 app = initializeApp(configToUse);
                 auth = getAuth(app);
                     
+                // Si hay un token inicial, intentamos iniciar sesión con él.
                 if (initialAuthToken) {
-                    // Usar token de autenticación inicial si existe
                     signInWithCustomToken(auth, initialAuthToken).catch(e => {
                         console.error("Fallo al autenticar con token inicial:", e);
-                        authScreen.classList.remove('hidden');
-                    }).finally(setupAuthListener);
+                        authScreen.classList.remove('hidden'); // Mostrar login si falla
+                    }).finally(setupAuthListener); // Siempre configuramos el listener después del intento
                 } else {
-                    // Continuar con el listener normal si no hay token inicial
+                    // Si no hay token, solo configuramos el listener
                     setupAuthListener(); 
                 }
             } catch (error) {
                 console.error("Error al inicializar Firebase:", error);
-                console.error(`Error fatal al iniciar Firebase: ${error.message}`);
-                // Reemplazar la pantalla por un mensaje de error si la inicialización falló
-                authScreen.innerHTML = `<p class="text-red-500 text-center">Error fatal: ${error.message}</p>`;
-                authScreen.classList.remove('hidden');
+                document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Error fatal al iniciar Firebase: ${error.message}</div>`;
             }
         }
 
-
-        // --- 2. PHYSICS SIMULATION LOGIC (Envuelto en startSimulation) ---
+        // --- 2. PHYSICS SIMULATION LOGIC (CÓDIGO ORIGINAL DE SIMULACIÓN) ---
         
         let canvas, ctx;
         let particles = [];
         let numParticles = 200;
         let currentState = 'solid';
 
-        // Variables de control de la simulación
-        let currentTemperature = 0.5; // (0.01 a 1.5) Afecta la velocidad inicial y aleatoria
-        let currentBondStrength = 0.02; // (0.0 a 0.05) Afecta la fuerza de atracción/repulsión
-        let attractionStrength = 0.01;
+        let currentTemperature = 0.5; // (0.01 a 1.5)
+        let currentBondStrength = 0.02; // (0.0 a 0.05)
         let repulsionDistance = 30; // Distancia a la que empieza la repulsión
 
         // Elementos del DOM de la simulación
@@ -497,21 +455,18 @@
         const bondStrengthValueEl = document.getElementById('bondStrengthValue');
         const stateButtons = document.getElementById('state-buttons');
 
-        // Clase para representar una partícula de agua (Molécula)
         class Particle {
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                // Velocidad inicial basada en la temperatura
                 let angle = Math.random() * Math.PI * 2;
                 let speed = Math.random() * currentTemperature * 2;
                 this.vx = Math.cos(angle) * speed;
                 this.vy = Math.sin(angle) * speed;
                 this.radius = 3;
-                this.color = '#3b82f6'; // Azul
+                this.color = '#3b82f6';
             }
 
-            // Dibuja la partícula
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
@@ -519,7 +474,6 @@
                 ctx.fill();
             }
 
-            // Aplica fuerzas de atracción o repulsión
             attract(other, strength) {
                 const dx = other.x - this.x;
                 const dy = other.y - this.y;
@@ -530,48 +484,44 @@
                     let force;
                     
                     if (currentState === 'solid' || currentState === 'liquid') {
-                        // Fuerza de enlace (atracción) que es más fuerte en sólido
                         force = strength / distSq;
                         
-                        // Si están demasiado cerca, repeler (evitar superposición)
+                        // Repeler si están demasiado cerca
                         if (dist < repulsionDistance) {
                             force -= (repulsionDistance - dist) * 0.001;
                         }
                     } else { // Gaseoso
-                        // Fuerza de atracción insignificante, solo repulsión por proximidad
                         if (dist < repulsionDistance / 2) {
                             force = -0.005 / dist;
                         } else {
-                            return; // No hay fuerzas en la fase gaseosa
+                            return;
                         }
                     }
 
                     const fx = force * (dx / dist);
                     const fy = force * (dy / dist);
 
-                    // Aplicar la fuerza (masa=1)
                     this.vx += fx;
                     this.vy += fy;
                 }
             }
 
-            // Actualiza la posición y maneja los límites
             update() {
-                // Movimiento Browniano/Térmico aleatorio (aumenta con la temperatura)
+                // Movimiento Browniano/Térmico aleatorio
                 this.vx += (Math.random() - 0.5) * currentTemperature * 0.1;
                 this.vy += (Math.random() - 0.5) * currentTemperature * 0.1;
 
                 this.x += this.vx;
                 this.y += this.vy;
 
-                // Fricción/Resistencia (disminuye la velocidad)
+                // Fricción/Resistencia
                 this.vx *= 0.99;
                 this.vy *= 0.99;
 
                 // Rebotar en los límites del canvas
                 if (this.x - this.radius < 0) {
                     this.x = this.radius;
-                    this.vx *= -0.9; // Rebote
+                    this.vx *= -0.9;
                 } else if (this.x + this.radius > canvas.width) {
                     this.x = canvas.width - this.radius;
                     this.vx *= -0.9;
@@ -587,7 +537,6 @@
             }
         }
 
-        // Distribuye las partículas en el canvas
         function populateParticles() {
             particles = [];
             const cols = 20;
@@ -607,44 +556,37 @@
             }
         }
 
-        // Ajusta los parámetros de la simulación según el estado
         function changeState(newState) {
             currentState = newState;
 
-            // Remueve la clase 'active' de todos los botones
             document.querySelectorAll('#state-buttons button').forEach(btn => {
-                btn.classList.remove('active', 'bg-blue-700');
+                btn.classList.remove('active');
                 btn.classList.add('bg-blue-500');
             });
 
-            // Aplica la clase 'active' al botón seleccionado
             const activeBtn = document.getElementById(newState + 'Btn');
             if (activeBtn) {
                 activeBtn.classList.remove('bg-blue-500');
                 activeBtn.classList.add('active', 'bg-blue-700');
             }
 
-            // Configuración de estado
             if (newState === 'solid') {
-                // Sólido: Baja T°, Alta fuerza de enlace (F. Enlace)
                 currentTemperature = 0.1;
                 currentBondStrength = 0.04;
                 repulsionDistance = 30;
                 numParticles = 200;
                 populateParticles();
             } else if (newState === 'liquid') {
-                // Líquido: T° moderada, F. Enlace moderada
                 currentTemperature = 0.5;
                 currentBondStrength = 0.02;
                 repulsionDistance = 15;
             } else if (newState === 'gas') {
-                // Gaseoso: Alta T°, F. Enlace baja/cero
                 currentTemperature = 1.0;
                 currentBondStrength = 0.00;
                 repulsionDistance = 10;
             }
 
-            // Sincronizar sliders
+            // Sincronizar sliders y valores mostrados
             temperatureSlider.value = currentTemperature;
             bondStrengthSlider.value = currentBondStrength;
             temperatureValueEl.textContent = currentTemperature.toFixed(2);
@@ -652,25 +594,19 @@
         }
 
 
-        // Loop principal de la animación
         function animate() {
             // Limpia el canvas
             ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg-light').trim();
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Fuerza de atracción para esta iteración
-            attractionStrength = parseFloat(bondStrengthSlider.value);
+            const attractionStrength = parseFloat(bondStrengthSlider.value);
 
-            // Iterar sobre las partículas
             particles.forEach((p1, i) => {
-                // Solo calcula las fuerzas si no es gaseoso puro
                 if (currentState !== 'gas') {
                     for (let j = i + 1; j < particles.length; j++) {
                         const p2 = particles[j];
-
-                        // Aplica la fuerza de atracción/repulsión entre pares
                         p1.attract(p2, attractionStrength);
-                        p2.attract(p1, attractionStrength); // Tercera Ley de Newton
+                        p2.attract(p1, attractionStrength); 
                     }
                 }
                 
@@ -694,15 +630,12 @@
             const container = document.getElementById('canvas-container');
             const rect = container.getBoundingClientRect();
             canvas.width = rect.width;
-            canvas.height = 400; // Altura fija por ahora
+            canvas.height = 400; // Altura fija
         }
 
-        // Esta es la función que ejecuta la simulación (se llama solo después de la autenticación)
         function startSimulation() {
             setupCanvas();
-
-            // EventListeners para la simulación
-
+            
             // Agrega los EventListeners a los botones de estado del agua
             document.getElementById('solidBtn').addEventListener('click', () => changeState('solid'));
             document.getElementById('liquidBtn').addEventListener('click', () => changeState('liquid'));
@@ -729,9 +662,10 @@
         // --- 4. INICIALIZACIÓN GLOBAL ---
 
         window.onload = function () {
-            // Asignación de evento para cerrar sesión debe ir aquí o después de obtener el botón
+            // Asignación de evento para cerrar sesión
              logoutButtonFooter.addEventListener('click', handleLogout);
              logoutButtonHeader.addEventListener('click', handleLogout);
+             logoutButtonMenu.addEventListener('click', handleLogout);
             
             // 1. Inicializa Firebase (esto configura el listener onAuthStateChanged)
             initFirebase();
@@ -741,4 +675,3 @@
 
 </body>
 </html>
-
